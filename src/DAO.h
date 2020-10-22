@@ -1,7 +1,10 @@
 #include <sqlite3.h>
 #include <string>
 
+#ifndef CITY_H
+#define CITY_H
 #include "City.h"
+#endif
 
 class DAO {
     private:

@@ -5,7 +5,15 @@
 #include <string>
 #include <map>
 
+#ifndef DAO_H
+#define DAO_H
 #include "DAO.h"
+#endif
+
+#ifndef GRAPH_H
+#define GRAPH_H
+#include "Graph.h"
+#endif
 
 /**
  * Parses the current line, separating each substring
@@ -89,6 +97,8 @@ int main(int argc, char** argv) {
 	          << ")"
 	          << std::endl;
     }
+
+    Graph g = Graph(cities, dao);
 
     dao.closeDB();
 

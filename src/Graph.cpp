@@ -196,16 +196,9 @@ double Graph::getCost(std::vector<int> sequence) {
         indexU = searchTable.at(*it);
 	indexV = searchTable.at(*jt);
         travelledDistance += adjMatrix[indexU][indexV];
-	std::cout << *it << ";" << *jt << std::endl;
 	it++;
 	jt++;
     }
-    
-    /*
-    indexU = searchTable.at(sequence.front());
-    indexV = searchTable.at(sequence.back());
-    travelledDistance += adjMatrix[indexU][indexV];
-    */
 
     return travelledDistance / norm;
 }

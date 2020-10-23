@@ -93,13 +93,9 @@ int main(int argc, char** argv) {
 
     double norm = g.getNormalization();
 
-    std::cout.precision(10);
-    std::cout << g.getNaturalDistance(tokyo, shangai) << std::endl;
-    std::cout << norm << std::endl;
-
-
     double cost = g.getCost(IDs);
 
+    std::cout.precision(10);
     std::cout << cost << std::endl;
 
     dao.closeDB();

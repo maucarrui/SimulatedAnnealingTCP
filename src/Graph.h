@@ -14,12 +14,14 @@
 
 class Graph {
     private:
-        int num_vertex;
+        int numVertex;
+        double maxDistance;
         std::map<int, City> vertex;
         std::vector<std::vector<double>> adjMatrix;
 	DAO dao;
 
         double toRadians(double degree);
+        void buildAdjMatrix();
 
     public:
 	Graph(std::map<int, City> vertex, DAO dao);

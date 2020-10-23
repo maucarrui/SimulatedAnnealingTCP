@@ -14,11 +14,13 @@ double Graph::toRadians(double degree) {
  * @param dao    The database access object for the graph.
  */
 Graph::Graph(std::map<int, City> vertex, DAO dao) {
-    int no_columns   = vertex.size();
-    this->num_vertex = vertex.size();
-    this->vertex     = vertex;
-    this->dao        = dao;
-    this->adjMatrix.resize(no_columns, std::vector<double>(no_columns));
+    this->numVertex   = vertex.size();
+    this->vertex      = vertex;
+    this->dao         = dao;
+    this->maxDistance = getMaxDistance();
+
+    this->adjMatrix.resize(numVertex, std::vector<double>(numVertex));
+    buildAdjMatrix();
 }
 
 /**
@@ -32,11 +34,11 @@ double Graph::getMaxDistance() {
     float max = -1;
     float currentDistance;
 
-    while (i < num_vertex - 1) {
+    while (i < numVertex - 1) {
         a = vertex.at(i).getID();
 	j = i + 1;
 
-	while (j < num_vertex) {
+	while (j < numVertex) {
              b = vertex.at(j).getID();
 	     currentDistance = dao.getConnection(a, b);
 	     
@@ -79,4 +81,26 @@ double Graph::getNaturalDistance(City u, City v) {
     double C = 2 * atan2(root1, root2);
 
     return R * C;
+}
+
+/**
+ * Builds the adjacency matrix of the graph.
+ */
+void Graph::buildAdjMatrix() {
+    double distance;
+
+    for (int i = 0; i < numVertex; i++) {
+	City u = vertex.at(i);
+
+        for (int j = 0; j < numVertex; j++) {
+	    City v = vertex.at(j);
+	    
+	    distance = dao.getConnection(u.getID(), v.getID());
+	    
+	    if (distance > -1)
+	        adjMatrix[i][j] = distance;
+	    else
+	        adjMatrix[i][j] = maxDistance * getNaturalDistance(u, v);
+	}
+    }
 }

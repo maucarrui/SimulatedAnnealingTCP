@@ -1,5 +1,6 @@
 #include <map>
 #include <vector>
+#include <math.h>
 
 #ifndef CITY_H
 #define CITY_H
@@ -18,8 +19,10 @@ class Graph {
         std::vector<std::vector<double>> adjMatrix;
 	DAO dao;
 
+        double toRadians(double degree);
+
     public:
 	Graph(std::map<int, City> vertex, DAO dao);
 	double getMaxDistance();
-	// float getNaturalDistance(City a, City b);
+	double getNaturalDistance(City u, City v);
 };	

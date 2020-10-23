@@ -1,6 +1,13 @@
 #include "Graph.h"
 
 /**
+ * Converts degrees to radians.
+ */
+double Graph::toRadians(double degree) {
+    return (M_PI * degree) / 180;
+}
+
+/**
  * Graph constructor.
  *
  * @param vertex The vertex of the graph.
@@ -43,4 +50,33 @@ double Graph::getMaxDistance() {
     }
 
     return max;
+}
+
+/**
+ * Calculates the natural distance between two cities.
+ *
+ * @return The natural distance between two cities.
+ */
+double Graph::getNaturalDistance(City u, City v) {
+    double R = 6373000;
+
+    double latU = toRadians(u.getLatitude());
+    double latV = toRadians(v.getLatitude());
+    double lonU = toRadians(u.getLongitude());
+    double lonV = toRadians(v.getLongitude());
+
+    double temp1 = sin( (lonV - lonU) / 2 );
+    double temp2 = sin( (latV - latU) / 2 );
+
+    double term1 = pow(temp2, 2);
+    double term2 = cos(latU) * cos(latV) * pow(temp1, 2);
+
+    double A = term1 + term2;
+
+    double root1 = sqrt(A);
+    double root2 = sqrt(1 - A);
+
+    double C = 2 * atan2(root1, root2);
+
+    return R * C;
 }

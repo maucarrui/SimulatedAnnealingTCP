@@ -1,4 +1,5 @@
 #include <map>
+#include <list>
 #include <vector>
 #include <math.h>
 
@@ -16,6 +17,7 @@ class Graph {
     private:
         int numVertex;
         double maxDistance;
+        double norm;
         std::map<int, City> vertex;
         std::vector<std::vector<double>> adjMatrix;
 	DAO dao;
@@ -27,4 +29,5 @@ class Graph {
 	Graph(std::map<int, City> vertex, DAO dao);
 	double getMaxDistance();
 	double getNaturalDistance(City u, City v);
+        double getNormalization();
 };	

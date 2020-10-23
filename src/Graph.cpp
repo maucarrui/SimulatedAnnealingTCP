@@ -18,6 +18,7 @@ Graph::Graph(std::map<int, City> vertex, DAO dao) {
     this->vertex      = vertex;
     this->dao         = dao;
     this->maxDistance = getMaxDistance();
+    this->norm        = getNormalization();
 
     this->adjMatrix.resize(numVertex, std::vector<double>(numVertex));
     buildAdjMatrix();
@@ -31,8 +32,8 @@ Graph::Graph(std::map<int, City> vertex, DAO dao) {
 double Graph::getMaxDistance() {
     int i = 0, j = 1;
     int a, b;
-    float max = -1;
-    float currentDistance;
+    double max = -1;
+    double currentDistance;
 
     while (i < numVertex - 1) {
         a = vertex.at(i).getID();
@@ -52,6 +53,53 @@ double Graph::getMaxDistance() {
     }
 
     return max;
+}
+
+/**
+ * Gets the normalization of the graph.
+ *
+ * @return The normalization of the graph.
+ */
+double Graph::getNormalization() {
+    std::list<double> distances;
+
+    // Gets all the posible distances in the graph.
+    int i = 0, j = 1;
+    int a, b;
+    double currentDistance;
+
+    while (i < numVertex - 1) {
+        a = vertex.at(i).getID();
+	j = i + 1;
+
+	while (j < numVertex) {
+             b = vertex.at(j).getID();
+	     currentDistance = dao.getConnection(a, b);
+
+	     if (currentDistance > -1)
+	         distances.push_back(currentDistance);
+
+	     j++;
+        }
+
+	i++;
+    }
+
+    // Gets the sum of the first |V|-1 distances
+    distances.sort(std::greater<double>());
+    std::list<double>::iterator it;
+    double normalization = 0;
+
+    i = 0;
+    for (it = distances.begin(); it != distances.end(); it++) {
+        if (i >= numVertex)
+	    break;
+
+	normalization += *it;
+	i++;
+    }
+
+    return normalization;
 }
 
 /**

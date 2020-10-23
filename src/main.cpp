@@ -86,27 +86,7 @@ int main(int argc, char** argv) {
 	i++;
     }
 
-    std::map<int, City>::iterator it;
-    for(it = cities.begin(); it != cities.end(); it++){
-        std::cout << "("
-	          << it->first
-	          << ";"
-	          << it->second.getName()
-	          << ";"
-	          << it->second.getID()
-	          << ")"
-	          << std::endl;
-    }
-
     Graph g = Graph(cities, dao);
-
-    double res = dao.getConnection(6, 5);
-
-    std::cout << res << std::endl;
-
-    double max = g.getMaxDistance();
-
-    std::cout << max << std::endl;
 
     dao.closeDB();
 

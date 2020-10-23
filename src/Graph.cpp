@@ -21,6 +21,7 @@ Graph::Graph(std::map<int, City> vertex, DAO dao) {
     this->norm        = getNormalization();
 
     this->adjMatrix.resize(numVertex, std::vector<double>(numVertex));
+    buildSearchTable();
     buildAdjMatrix();
 }
 
@@ -92,7 +93,7 @@ double Graph::getNormalization() {
 
     i = 0;
     for (it = distances.begin(); it != distances.end(); it++) {
-        if (i >= numVertex)
+        if (i >= numVertex-1)
 	    break;
 
 	normalization += *it;
@@ -115,8 +116,8 @@ double Graph::getNaturalDistance(City u, City v) {
     double lonU = toRadians(u.getLongitude());
     double lonV = toRadians(v.getLongitude());
 
-    double temp1 = sin( (lonV - lonU) / 2 );
-    double temp2 = sin( (latV - latU) / 2 );
+    double temp1 = sin((lonV - lonU) / 2);
+    double temp2 = sin((latV - latU) / 2);
 
     double term1 = pow(temp2, 2);
     double term2 = cos(latU) * cos(latV) * pow(temp1, 2);
@@ -132,9 +133,27 @@ double Graph::getNaturalDistance(City u, City v) {
 }
 
 /**
+ * Builds the search table of a Graph. Given the ID of the city,
+ * the search table returns the index corresponding to that 
+ * city in the adjacency matrix.
+ */
+void Graph::buildSearchTable() {
+    int ID, index;
+    std::map<int, City>::iterator it;
+
+    for (it = vertex.begin(); it != vertex.end(); it++) {
+        ID    = it->second.getID();
+	index = it->first;
+
+        searchTable.emplace(ID, index);
+    }
+}
+
+/**
  * Builds the adjacency matrix of the graph.
  */
 void Graph::buildAdjMatrix() {
+    double natural;
     double distance;
 
     for (int i = 0; i < numVertex; i++) {
@@ -145,10 +164,48 @@ void Graph::buildAdjMatrix() {
 	    
 	    distance = dao.getConnection(u.getID(), v.getID());
 	    
-	    if (distance > -1)
+	    if (distance > -1) {
 	        adjMatrix[i][j] = distance;
-	    else
-	        adjMatrix[i][j] = maxDistance * getNaturalDistance(u, v);
+		adjMatrix[j][i] = distance;
+	    }
+	    else {
+	        natural = getNaturalDistance(u, v);
+	        adjMatrix[i][j] = maxDistance * natural;
+		adjMatrix[j][i] = maxDistance * natural;
+	    }
 	}
     }
+}
+
+/**
+ * Calculates the cost of the given sequence.
+ * 
+ * @param The sequence of cities that represent a path in the Graph.
+ * @return The cost of the given sequence of cities.
+ */
+double Graph::getCost(std::vector<int> sequence) {
+    double travelledDistance = 0;
+    int indexU, indexV;
+
+    std::vector<int>::iterator it = sequence.begin();
+    std::vector<int>::iterator jt = sequence.begin();
+    
+    jt++;
+
+    while (jt != sequence.end()) {
+        indexU = searchTable.at(*it);
+	indexV = searchTable.at(*jt);
+        travelledDistance += adjMatrix[indexU][indexV];
+	std::cout << *it << ";" << *jt << std::endl;
+	it++;
+	jt++;
+    }
+    
+    /*
+    indexU = searchTable.at(sequence.front());
+    indexV = searchTable.at(sequence.back());
+    travelledDistance += adjMatrix[indexU][indexV];
+    */
+
+    return travelledDistance / norm;
 }

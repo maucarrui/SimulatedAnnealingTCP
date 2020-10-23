@@ -88,6 +88,20 @@ int main(int argc, char** argv) {
 
     Graph g = Graph(cities, dao);
 
+    City tokyo   = dao.getCityByID(1);
+    City shangai = dao.getCityByID(2);
+
+    double norm = g.getNormalization();
+
+    std::cout.precision(10);
+    std::cout << g.getNaturalDistance(tokyo, shangai) << std::endl;
+    std::cout << norm << std::endl;
+
+
+    double cost = g.getCost(IDs);
+
+    std::cout << cost << std::endl;
+
     dao.closeDB();
 
     return 0;

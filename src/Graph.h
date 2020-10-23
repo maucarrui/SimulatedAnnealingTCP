@@ -13,12 +13,13 @@
 
 class Graph {
     private:
+        int num_vertex;
         std::map<int, City> vertex;
         std::vector<std::vector<double>> adjMatrix;
 	DAO dao;
 
     public:
 	Graph(std::map<int, City> vertex, DAO dao);
-	// float getMaxDistance();
+	double getMaxDistance();
 	// float getNaturalDistance(City a, City b);
 };	

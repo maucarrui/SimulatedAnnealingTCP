@@ -104,6 +104,10 @@ int main(int argc, char** argv) {
 
     std::cout << res << std::endl;
 
+    double max = g.getMaxDistance();
+
+    std::cout << max << std::endl;
+
     dao.closeDB();
 
     return 0;

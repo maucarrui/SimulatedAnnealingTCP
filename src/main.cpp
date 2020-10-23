@@ -100,6 +100,10 @@ int main(int argc, char** argv) {
 
     Graph g = Graph(cities, dao);
 
+    double res = dao.getConnection(6, 5);
+
+    std::cout << res << std::endl;
+
     dao.closeDB();
 
     return 0;

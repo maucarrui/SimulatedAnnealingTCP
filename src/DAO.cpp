@@ -55,6 +55,35 @@ City DAO::getCityByID(int ID) {
 
     return City(ID, name, country, population, latitude, longitude);
 }
+/**
+ * Return the distance between two cities.
+ *
+ * @param a The ID of one city.
+ * @param b The other city ID.
+ * @return  The distance between the two cities or -1 if there is 
+ *          no connection.
+ */
+double DAO::getConnection(int a, int b) {
+  sqlite3_stmt * stmt;
+
+  std::string query = "SELECT * FROM connections WHERE (id_city_1 = ";
+  query             = query + std::to_string(a);
+  query             = query + " AND id_city_2 = " + std::to_string(b) + ")";
+  query             = query + " OR (id_city_1 = " + std::to_string(b);
+  query             = query + " AND id_city_2 = " + std::to_string(a) + ")";
+
+  const char* c_query = query.c_str();
+
+  sqlite3_prepare(DB, c_query, -1, &stmt, NULL);
+  int res = sqlite3_step(stmt);
+
+  if (res == SQLITE_DONE) {
+      return -1;
+  } else {
+      return sqlite3_column_double(stmt, 2);
+  }
+
+}
 
 /**
  * Closes the connection to the database.

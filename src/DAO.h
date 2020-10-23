@@ -16,5 +16,6 @@ class DAO {
         DAO();
         int openDB(const char* pathDB);
         City getCityByID(int ID);
+        double getConnection(int a, int b);
         void closeDB();
 };

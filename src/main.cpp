@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -13,6 +15,11 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 #include "Graph.h"
+#endif
+
+#ifndef SOLUTION_H
+#define SOLUTION_H
+#include "Solution.h"
 #endif
 
 /**
@@ -68,6 +75,10 @@ int main(int argc, char** argv) {
 	return 0;
     }
 
+    // Set a random seed for the random number generation.
+    std::srand( (unsigned int) time (NULL));
+    
+    // Get the input file and sql file.
     std::string citiesFile = argv[1];
     const char* pathDB     = "sql/database.db";
 
@@ -88,15 +99,7 @@ int main(int argc, char** argv) {
 
     Graph g = Graph(cities, dao);
 
-    City tokyo   = dao.getCityByID(1);
-    City shangai = dao.getCityByID(2);
-
-    double norm = g.getNormalization();
-
-    double cost = g.getCost(IDs);
-
-    std::cout.precision(10);
-    std::cout << cost << std::endl;
+    Solution initialSolution = Solution(IDs);
 
     dao.closeDB();
 

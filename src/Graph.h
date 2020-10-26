@@ -14,6 +14,11 @@
 #include "DAO.h"
 #endif
 
+#ifndef SOLUTION_H
+#define SOLUTION_H
+#include "Solution.h"
+#endif
+
 class Graph {
     private:
         int numVertex;
@@ -33,5 +38,5 @@ class Graph {
 	double getMaxDistance();
 	double getNaturalDistance(City u, City v);
         double getNormalization();
-        double getCost(std::vector<int> sequence);
+        double getCost(Solution s);
 };	

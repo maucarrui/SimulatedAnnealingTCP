@@ -178,12 +178,15 @@ void Graph::buildAdjMatrix() {
 }
 
 /**
- * Calculates the cost of the given sequence.
+ * Calculates the cost of the given solution.
  * 
- * @param The sequence of cities that represent a path in the Graph.
- * @return The cost of the given sequence of cities.
+ * @param The solution which contains a sequence of cities 
+ *     that represent a path in the Graph.
+ * @return The cost of the given solution.
  */
-double Graph::getCost(std::vector<int> sequence) {
+double Graph::getCost(Solution s) {
+    std::vector<int> sequence = s.getSequence();
+
     double travelledDistance = 0;
     int indexU, indexV;
 

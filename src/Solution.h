@@ -7,6 +7,7 @@ class Solution {
         std::vector<int> sequence;
     
     public:
+        Solution();
 	Solution(std::vector<int> sequence);
 	
 	std::vector<int> getSequence();

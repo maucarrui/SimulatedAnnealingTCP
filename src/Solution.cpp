@@ -1,6 +1,11 @@
 #include "Solution.h"
 
 /**
+ * Default constructor.
+ */
+Solution::Solution(){}
+
+/**
  * Solution constructor.
  * A solution for the TSP, a solution is just a sequence of cities.
  */

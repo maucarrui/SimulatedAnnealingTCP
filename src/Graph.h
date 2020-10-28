@@ -34,6 +34,7 @@ class Graph {
         void buildAdjMatrix();
 
     public:
+        Graph();
 	Graph(std::map<int, City> vertex, DAO dao);
 	double getMaxDistance();
 	double getNaturalDistance(City u, City v);

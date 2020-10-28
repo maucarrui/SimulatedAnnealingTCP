@@ -8,6 +8,11 @@ double Graph::toRadians(double degree) {
 }
 
 /**
+ * Default constructor.
+ */
+Graph::Graph(){}
+
+/**
  * Graph constructor.
  *
  * @param vertex The vertex of the graph.

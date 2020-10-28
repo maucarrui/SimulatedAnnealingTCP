@@ -1,5 +1,6 @@
 #include <utility>
 #include <limits>
+#include <cmath>
 
 #ifndef SOLUTION_H
 #define SOLUTION_H

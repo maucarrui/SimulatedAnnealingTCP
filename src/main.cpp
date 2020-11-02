@@ -22,6 +22,11 @@
 #include "Solution.h"
 #endif
 
+#ifndef HEURISTIC_H
+#define HEURISTIC_H
+#include "Heuristic.h"
+#endif
+
 /**
  * Parses the current line, separating each substring
  * delimited by a comma and casting it into an int, 
@@ -76,7 +81,7 @@ int main(int argc, char** argv) {
     }
 
     // Set a random seed for the random number generation.
-    std::srand( (unsigned int) time (NULL));
+    std::srand(100);
     
     // Get the input file and sql file.
     std::string citiesFile = argv[1];
@@ -97,9 +102,27 @@ int main(int argc, char** argv) {
 	i++;
     }
 
-    Graph g = Graph(cities, dao);
+    // Definition of the heuristic.
 
-    Solution initialSolution = Solution(IDs);
+    Graph g = Graph(cities, dao);
+    Solution initialSolution  = Solution(IDs);
+    double initialTemperature = 60;
+    double coolingFactor      = 0.4;
+    double epsilon            = 0.010;
+    double epsilon_p          = 0.010;
+    double L                  = 500;
+
+    Heuristic h = Heuristic(g, 
+			    initialSolution,
+			    initialTemperature,
+			    coolingFactor,
+			    L,
+			    epsilon,
+			    epsilon_p);
+
+    h.thresholdAcceptance();
+
+    std::cout << h.printStatus() << std::endl;
 
     dao.closeDB();
 

@@ -12,15 +12,27 @@ Heuristic::Heuristic(Graph G, Solution initialSolution,
     this->epsilon_p        = epsilon_p;
 }
 
+std::string Heuristic::getStatus() {
+    std::string temp;
+    temp  = "-----------\n";
+    temp += "(T: " + std::to_string(temperature) + ") ";
+    temp += currentSolution.toString() + "\n";
+    temp += "Cost: " + std::to_string(G.getCost(currentSolution)) + "\n";
+    return temp;
+}
+
 std::pair<double, Solution> Heuristic::calculateBatch(double T, Solution s) {
-    int c    = 0;
+    int c = 0, d = 0;
     double r = 0.0;
     Solution current = s;
     Solution neighbor;
     double currentCost, newCost;
+
+    int maxTries = L * 3;
     
-    while (c < L) {
-        neighbor    = s.getRandomNeighbor();
+    while ( (c < L) && (d < maxTries) ) {
+        neighbor    = current.getRandomNeighbor();
+
 	currentCost = G.getCost(current);
 	newCost     = G.getCost(neighbor);
 
@@ -28,6 +40,8 @@ std::pair<double, Solution> Heuristic::calculateBatch(double T, Solution s) {
 	    current = neighbor;
 	    c++;
 	    r += newCost;
+	} else {
+	    d++;
 	}
     }
     
@@ -44,9 +58,11 @@ void Heuristic::thresholdAcceptance() {
 	while (p <= q) { 
 	    q = p;
 	    ps = calculateBatch(temperature, currentSolution);
-	    q = ps.first;
+	    p = ps.first;
 	    currentSolution = ps.second;
 	}
+
+	status += getStatus();
 
 	temperature *= coolingFactor;
     }
@@ -128,4 +144,8 @@ double Heuristic::binarySearch(Solution s, double T1, double T2, double P) {
 
 Solution Heuristic::getCurrentSolution() {
     return currentSolution;
+}
+
+std::string Heuristic::printStatus() {
+    return status;
 }

@@ -1,4 +1,5 @@
 #include <utility>
+#include <string>
 #include <limits>
 #include <cmath>
 
@@ -22,6 +23,8 @@ class Heuristic {
         double epsilon;
         double epsilon_p;
 
+        std::string status;
+
     public:
 	Heuristic(Graph G, 
 		  Solution initialSolution, 
@@ -37,5 +40,7 @@ class Heuristic {
 	double acceptedPercentage(Solution s, double T);
 	double binarySearch(Solution s, double T1, double T2, double P);
 
+        std::string getStatus();
 	Solution getCurrentSolution();
+        std::string printStatus();
 };

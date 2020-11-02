@@ -37,14 +37,6 @@ Solution Solution::getRandomNeighbor() {
     
     std::vector<int> newSequence = sequence;
 
-    std::string temp1 = "";
-    std::string temp2 = "";
-
-    for (int k = 0; k < numCities; k++) {
-        temp1 += std::to_string(sequence[k]) + ";";
-	temp2 += std::to_string(newSequence[k]) + ";";
-    }
-
     int temp = newSequence[i];
     newSequence[i] = newSequence[j];
     newSequence[j] = temp;

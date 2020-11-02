@@ -74,10 +74,13 @@ int main(int argc, char** argv) {
     // Handle too few or too many arguments.
     if (argc < 2) {
         std::cout << "Missing argument: Cities file required.\n";
-	return 0;
-    } else if (argc > 2) {
+	return -1;
+    } else if (argc < 3) {
+        std::cout << "Missing argument: Database file required.\n";
+	return -1;
+    } else if (argc > 3) {
         std::cout << "Too many arguments.\n";
-	return 0;
+	return -1;
     }
 
     // Set a random seed for the random number generation.
@@ -85,7 +88,7 @@ int main(int argc, char** argv) {
     
     // Get the input file and sql file.
     std::string citiesFile = argv[1];
-    const char* pathDB     = "sql/database.db";
+    const char* pathDB     = argv[2];
 
     // Get the IDs from the file.
     std::vector<int> IDs = getIDs(citiesFile);

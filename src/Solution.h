@@ -1,6 +1,7 @@
 #include <vector>
 #include <random>
 #include <iostream>
+#include <string>
 
 class Solution {
     private:
@@ -12,4 +13,5 @@ class Solution {
 	
 	std::vector<int> getSequence();
 	Solution getRandomNeighbor();
+        std::string toString();
 };

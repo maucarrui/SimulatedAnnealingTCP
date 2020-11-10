@@ -79,7 +79,7 @@ std::string usage() {
     s += "Arguments: \n";
     s += "    <citiesFile.txt>   The file contaning the cities' IDs for the TSP.\n";
     s += "    <database.db>      The sqlite3 file that contains all the information.\n";
-    s += "    <randomSeed>       The seed for the RNG.\n.";
+    s += "    <randomSeed>       The seed for the RNG.\n";
     s += "Options: \n";
     s += "    --verbose          Prints a more detailed execution of the TSP.\n";
 

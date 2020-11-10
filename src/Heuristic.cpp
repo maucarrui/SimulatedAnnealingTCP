@@ -15,9 +15,9 @@ Heuristic::Heuristic(Graph G, Solution initialSolution,
 std::string Heuristic::getStatus() {
     std::string temp;
     temp  = "-----------\n";
-    temp += "(T: " + std::to_string(temperature) + ") ";
+    temp += "(T: " + std::to_string(temperature) + ", ";
+    temp += "Cost: " + std::to_string(G.getCost(currentSolution)) + ")\n";
     temp += currentSolution.toString() + "\n";
-    temp += "Cost: " + std::to_string(G.getCost(currentSolution)) + "\n";
     return temp;
 }
 
@@ -69,12 +69,14 @@ void Heuristic::thresholdAcceptance() {
 
 }
 
-double Heuristic::getInitialTemperature(Solution s, double T, double P) {
+void Heuristic::getInitialTemperature(double P) {
     double T1, T2;
-    double p = acceptedPercentage(s, T);
+    Solution s = currentSolution;
+    double   T = temperature;
+    double p   = acceptedPercentage(s, T);
 
     if (std::abs((P - p)) <= epsilon_p) {
-        return T;
+        return;
     }
     
     if (p < P) {
@@ -99,7 +101,7 @@ double Heuristic::getInitialTemperature(Solution s, double T, double P) {
 
     }
 
-    return binarySearch(s, T1, T2, P);
+    this->temperature = binarySearch(s, T1, T2, P);
 }
 
 double Heuristic::acceptedPercentage(Solution s, double T) {
@@ -144,6 +146,13 @@ double Heuristic::binarySearch(Solution s, double T1, double T2, double P) {
 
 Solution Heuristic::getCurrentSolution() {
     return currentSolution;
+}
+
+std::string Heuristic::printSolution() {
+    std::string temp;
+    temp += currentSolution.toString() + "\n";
+    temp += "Cost: " + std::to_string(G.getCost(currentSolution)) + "\n";
+    return temp;
 }
 
 std::string Heuristic::printStatus() {

@@ -36,11 +36,13 @@ class Heuristic {
 
 	std::pair<double, Solution> calculateBatch(double T, Solution s);
 	void thresholdAcceptance();
-	double getInitialTemperature(Solution s, double T, double P);
+	void getInitialTemperature(double P);
 	double acceptedPercentage(Solution s, double T);
 	double binarySearch(Solution s, double T1, double T2, double P);
 
         std::string getStatus();
 	Solution getCurrentSolution();
+
+        std::string printSolution();
         std::string printStatus();
 };

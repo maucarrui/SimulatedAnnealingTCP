@@ -69,26 +69,48 @@ std::vector<int> getIDs(std::string fileName) {
      return IDs;
 }
 
+/**
+ * Returns the usage of this program.
+ * @return the usage of this program.
+ */
+std::string usage() {
+    std::string s = "";
+    s += "Usage: ./tsp <citiesFile.txt> <database.db> <randomSeed> [options] \n";
+    s += "Arguments: \n";
+    s += "    <citiesFile.txt>   The file contaning the cities' IDs for the TSP.\n";
+    s += "    <database.db>      The sqlite3 file that contains all the information.\n";
+    s += "    <randomSeed>       The seed for the RNG.\n.";
+    s += "Options: \n";
+    s += "    --verbose          Prints a more detailed execution of the TSP.\n";
+
+    return s;
+}
+
 int main(int argc, char** argv) {
 
-    // Handle too few or too many arguments.
-    if (argc < 2) {
-        std::cout << "Missing argument: Cities file required.\n";
-	return -1;
-    } else if (argc < 3) {
-        std::cout << "Missing argument: Database file required.\n";
-	return -1;
-    } else if (argc > 3) {
-        std::cout << "Too many arguments.\n";
-	return -1;
-    }
+    bool activeOption = false;
 
-    // Set a random seed for the random number generation.
-    std::srand(100);
+    // Handle too few or too many arguments.
+    if (argc < 2 || argc > 5) {
+        std::cout << usage() << std::endl;
+	return -1;
+    } else if (argc == 5) {
+        std::string option = "--verbose";
+        if (!option.compare(argv[4]))
+	    activeOption = true;
+	else {
+	    std::cout << usage() << std::endl;
+	    return -1;
+	}
+    }
     
-    // Get the input file and sql file.
+    // Get the input file, the sql file and the seed.
     std::string citiesFile = argv[1];
     const char* pathDB     = argv[2];
+    int seed               = std::stoi(argv[3]);
+
+    // Set a random seed for the random number generation.
+    std::srand(seed);
 
     // Get the IDs from the file.
     std::vector<int> IDs = getIDs(citiesFile);
@@ -107,13 +129,13 @@ int main(int argc, char** argv) {
 
     // Definition of the heuristic.
 
-    Graph g = Graph(cities, dao);
+    Graph g                   = Graph(cities, dao);
     Solution initialSolution  = Solution(IDs);
-    double initialTemperature = 60;
-    double coolingFactor      = 0.4;
-    double epsilon            = 0.010;
-    double epsilon_p          = 0.010;
-    double L                  = 500;
+    double initialTemperature = 139000;
+    double coolingFactor      = 0.9;
+    double epsilon            = 0.0010;
+    double epsilon_p          = 0.0010;
+    double L                  = 3000;
 
     Heuristic h = Heuristic(g, 
 			    initialSolution,
@@ -123,9 +145,14 @@ int main(int argc, char** argv) {
 			    epsilon,
 			    epsilon_p);
 
+    h.getInitialTemperature(0.90);
+
     h.thresholdAcceptance();
 
-    std::cout << h.printStatus() << std::endl;
+    if (activeOption)
+        std::cout << h.printStatus();
+    else
+        std::cout << h.printSolution();
 
     dao.closeDB();
 

@@ -21,8 +21,12 @@ ninja
 ```
 
 ## Usage
-You'll need two files, the file which contains the cities' IDs and the sqlite3 database file (.db).
-
 ```
-./tsp path/to/citiesIDs.txt path/to/database.db
+Usage: ./tsp <citiesFile.txt> <database.db> <randomSeed> [options] 
+Arguments: 
+    <citiesFile.txt>   The file contaning the cities' IDs for the TSP.
+    <database.db>      The sqlite3 file that contains all the information.
+    <randomSeed>       The seed for the RNG.
+Options: 
+    --verbose          Prints a more detailed execution of the TSP.
 ```

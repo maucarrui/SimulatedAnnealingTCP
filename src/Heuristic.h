@@ -16,14 +16,18 @@
 class Heuristic {
     private:
         Graph G;
-        Solution currentSolution;
 	double temperature;
 	double coolingFactor;
         double L;
         double epsilon;
         double epsilon_p;
 
+        Solution initialSolution;
+        Solution currentSolution;
+        Solution bestSolution;
+
         std::string status;
+        std::string getStatus();
 
     public:
 	Heuristic(Graph G, 
@@ -34,15 +38,15 @@ class Heuristic {
 		  double epislon,
 		  double epsilon_p);
 
-	std::pair<double, Solution> calculateBatch(double T, Solution s);
+	double calculateBatch(double T);
 	void thresholdAcceptance();
 	void getInitialTemperature(double P);
 	double acceptedPercentage(Solution s, double T);
 	double binarySearch(Solution s, double T1, double T2, double P);
 
-        std::string getStatus();
 	Solution getCurrentSolution();
-
-        std::string printSolution();
+        Solution getBestSolution();
+        
+        std::string printBestSolution();
         std::string printStatus();
 };

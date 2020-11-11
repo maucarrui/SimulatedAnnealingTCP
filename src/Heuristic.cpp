@@ -5,61 +5,70 @@ Heuristic::Heuristic(Graph G, Solution initialSolution,
 		    double L, double epsilon, double epsilon_p) {
     this->G                = G;
     this->L                = L;
+    this->initialSolution  = initialSolution;
     this->currentSolution  = initialSolution;
     this->temperature      = initialTemperature;
     this->coolingFactor    = coolingFactor;
     this->epsilon          = epsilon;
     this->epsilon_p        = epsilon_p;
+
+    this->bestSolution.setCost(std::numeric_limits<double>::infinity());
 }
 
 std::string Heuristic::getStatus() {
     std::string temp;
     temp  = "-----------\n";
     temp += "(T: " + std::to_string(temperature) + ", ";
-    temp += "Cost: " + std::to_string(G.getCost(currentSolution)) + ")\n";
+    temp += "Cost: " + std::to_string(currentSolution.getCost()) + ")\n";
     temp += currentSolution.toString() + "\n";
     return temp;
 }
 
-std::pair<double, Solution> Heuristic::calculateBatch(double T, Solution s) {
+double Heuristic::calculateBatch(double T) {
     int c = 0, d = 0;
     double r = 0.0;
-    Solution current = s;
-    Solution neighbor;
-    double currentCost, newCost;
+    double currentCost, newCost, minCost;
+    std::vector<int> minSequence;
 
     int maxTries = L * 3;
-    
-    while ( (c < L) && (d < maxTries) ) {
-        neighbor    = current.getRandomNeighbor();
+    int i = 0;
 
-	currentCost = G.getCost(current);
-	newCost     = G.getCost(neighbor);
+    while ( (c < L) && (d < maxTries) ) {
+        currentSolution.getRandomNeighbor(G);
+
+	currentCost = currentSolution.getPreviousCost();
+	newCost     = currentSolution.getCost();
+
+	minCost     = bestSolution.getCost();
 
 	if (newCost <= currentCost + T) {
-	    current = neighbor;
+	    if (newCost <= minCost) {
+	        minSequence = currentSolution.getSequence();
+		bestSolution.setSequence(minSequence);
+		bestSolution.setCost(newCost);
+	    }
+
 	    c++;
 	    r += newCost;
 	} else {
+	    currentSolution.revertChanges();
 	    d++;
 	}
+	i++;
     }
     
-    return std::make_pair((r / L), current);
+    return (r / L);
 }
 
 void Heuristic::thresholdAcceptance() {
     double p = 0.0, q = 0.0;
-    std::pair<double, Solution> ps;
     
     while (temperature > epsilon) {
         q = std::numeric_limits<double>::infinity();
 	
 	while (p <= q) { 
 	    q = p;
-	    ps = calculateBatch(temperature, currentSolution);
-	    p = ps.first;
-	    currentSolution = ps.second;
+	    p = calculateBatch(temperature);
 	}
 
 	status += getStatus();
@@ -112,14 +121,15 @@ double Heuristic::acceptedPercentage(Solution s, double T) {
     double currentCost, newCost;
     
     for (int i = 0; i < L; i++) {
-        newSolution = current.getRandomNeighbor();
-	currentCost = G.getCost(current);
-	newCost     = G.getCost(newSolution);
+        current.getRandomNeighbor(G);
+
+	currentCost = current.getPreviousCost();
+	newCost     = current.getCost();
 	
-	if (newCost <= currentCost + T) {
+	if (newCost <= currentCost + T)
 	    c++;
-	    current = newSolution;
-	}
+	else
+	    current.revertChanges();
     }
 
     return c / L;
@@ -148,13 +158,18 @@ Solution Heuristic::getCurrentSolution() {
     return currentSolution;
 }
 
-std::string Heuristic::printSolution() {
+std::string Heuristic::printBestSolution() {
     std::string temp;
-    temp += currentSolution.toString() + "\n";
-    temp += "Cost: " + std::to_string(G.getCost(currentSolution)) + "\n";
+    temp += "===== BEST SOLUTION =====\n";
+    temp += bestSolution.toString() + "\n";
+    temp += "Best cost: " + std::to_string(bestSolution.getCost()) + "\n";
     return temp;
 }
 
 std::string Heuristic::printStatus() {
-    return status;
+    std::string temp;
+    temp += status;
+    temp += "\n ---------- \n";
+    temp += printBestSolution();
+    return temp;
 }

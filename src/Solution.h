@@ -10,9 +10,7 @@
 
 class Solution {
     private:
-        double previousCost;
         double cost;
-        std::vector<int> previousSequence;
         std::vector<int> sequence;
     
     public:
@@ -22,14 +20,10 @@ class Solution {
         void setCost(double newCost);
         void setSequence(std::vector<int> newSequence);
 
+        double getCost();
 	std::vector<int> getSequence();
 
-        double getPreviousCost();
-        double getCost();
-
-	void getRandomNeighbor(Graph G);
-        void revertChanges();
+	std::pair<double, std::vector<int>> getRandomNeighbor(Graph G);
 
         std::string toString();
-        std::string prevToString();
 };

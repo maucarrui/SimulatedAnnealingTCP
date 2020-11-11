@@ -12,7 +12,7 @@ class Solution {
     
     public:
         Solution();
-	Solution(std::vector<int> sequence);
+	Solution(std::vector<int> sequence, double cost);
 	
         void setCost();
         void setSequence();

@@ -9,8 +9,9 @@ Solution::Solution(){}
  * Solution constructor.
  * A solution for the TSP, a solution is just a sequence of cities.
  */
-Solution::Solution(std::vector<int> sequence) {
+Solution::Solution(std::vector<int> sequence, double cost) {
     this->sequence = sequence;
+    this->cost     = cost;
 }
 
 /**

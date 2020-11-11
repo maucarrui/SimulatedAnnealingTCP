@@ -14,10 +14,38 @@ Solution::Solution(std::vector<int> sequence) {
 }
 
 /**
+ * Sets the cost for the solution.
+ */
+void Solution::setCost(double newCost) {
+    this->cost = newCost;
+}
+
+/**
+ * Sets the sequence for the solution.
+ */
+void Solution::setSequence(std::vector<int> newSequence) {
+    this->sequence = newSequence;
+}
+
+/**
  * Returns the sequence of the solution.
  */
 std::vector<int> Solution::getSequence() {
     return sequence;
+}
+
+/**
+ * Returns the previous cost of the solution.
+ */
+double getPreviousCost() {
+    return previousCost;
+}
+
+/**
+ * Returns the cost of the solution.
+ */
+double getCost() {
+    return cost;
 }
 
 /**

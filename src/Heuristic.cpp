@@ -29,19 +29,24 @@ double Heuristic::calculateBatch(double T) {
     double r = 0.0;
     double currentCost, newCost, minCost;
     std::vector<int> minSequence;
+    std::pair<double, std::vector<int>> ps;
 
     int maxTries = L * 3;
-    int i = 0;
 
     while ( (c < L) && (d < maxTries) ) {
-        currentSolution.getRandomNeighbor(G);
+        ps = currentSolution.getRandomNeighbor(G);
 
-	currentCost = currentSolution.getPreviousCost();
-	newCost     = currentSolution.getCost();
-
-	minCost     = bestSolution.getCost();
+	currentCost = currentSolution.getCost();
+	newCost     = ps.first;
 
 	if (newCost <= currentCost + T) {
+	    // Update the current solution.
+	    currentSolution.setCost(newCost);
+	    currentSolution.setSequence(ps.second);
+	  
+	    // Check if the new solution is a minimum.
+            minCost = bestSolution.getCost();
+
 	    if (newCost <= minCost) {
 	        minSequence = currentSolution.getSequence();
 		bestSolution.setSequence(minSequence);
@@ -51,10 +56,8 @@ double Heuristic::calculateBatch(double T) {
 	    c++;
 	    r += newCost;
 	} else {
-	    currentSolution.revertChanges();
 	    d++;
 	}
-	i++;
     }
     
     return (r / L);
@@ -82,7 +85,7 @@ void Heuristic::getInitialTemperature(double P) {
     double T1, T2;
     Solution s = currentSolution;
     double   T = temperature;
-    double p   = acceptedPercentage(s, T);
+    double   p = acceptedPercentage(s, T);
 
     if (std::abs((P - p)) <= epsilon_p) {
         return;
@@ -117,19 +120,22 @@ double Heuristic::acceptedPercentage(Solution s, double T) {
     double c = 0.0;
     Solution newSolution;
     Solution current = s;
+    std::pair<double, std::vector<int>> ps;
 
     double currentCost, newCost;
     
     for (int i = 0; i < L; i++) {
-        current.getRandomNeighbor(G);
+        ps = current.getRandomNeighbor(G);
 
-	currentCost = current.getPreviousCost();
-	newCost     = current.getCost();
+	currentCost = current.getCost();
+	newCost     = ps.first;
 	
-	if (newCost <= currentCost + T)
+	if (newCost <= currentCost + T) {
+	    // Update the current solution
+	    current.setCost(newCost);
+	    current.setSequence(ps.second);
 	    c++;
-	else
-	    current.revertChanges();
+	}
     }
 
     return c / L;

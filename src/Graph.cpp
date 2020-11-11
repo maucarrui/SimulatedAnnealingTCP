@@ -185,13 +185,10 @@ void Graph::buildAdjMatrix() {
 /**
  * Calculates the cost of the given solution.
  * 
- * @param The solution which contains a sequence of cities 
- *     that represent a path in the Graph.
+ * @param The sequence of cities that represent a path in the Graph.
  * @return The cost of the given solution.
  */
-double Graph::getCost(Solution s) {
-    std::vector<int> sequence = s.getSequence();
-
+double Graph::getCost(std::vector<int> sequence) {
     double travelledDistance = 0;
     int indexU, indexV;
 
@@ -209,4 +206,25 @@ double Graph::getCost(Solution s) {
     }
 
     return travelledDistance / norm;
+}
+
+/**
+ * Returns the weight of the edge connecting the 
+ * city with ID u and ID v.
+ * @param u The ID of the city.
+ * @param v The ID of the city.
+ * @return The weight of the edge.
+ */
+double Graph::getWeight(int u, int v) {
+    int i = searchTable.at(u);
+    int j = searchTable.at(v);
+    return adjMatrix[i][j];
+}
+
+/**
+ * Returns the normalization of the graph.
+ * @return The normalization of the graph.
+ */
+double Graph::getNorm() {
+    return norm;
 }

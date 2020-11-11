@@ -3,6 +3,11 @@
 #include <iostream>
 #include <string>
 
+#ifndef GRAPH_H
+#define GRAPH_H
+#include "Graph.h"
+#endif
+
 class Solution {
     private:
         double previousCost;
@@ -14,15 +19,17 @@ class Solution {
         Solution();
 	Solution(std::vector<int> sequence, double cost);
 	
-        void setCost();
-        void setSequence();
+        void setCost(double newCost);
+        void setSequence(std::vector<int> newSequence);
 
 	std::vector<int> getSequence();
 
         double getPreviousCost();
         double getCost();
 
-	void getRandomNeighbor();
+	void getRandomNeighbor(Graph G);
+        void revertChanges();
 
         std::string toString();
+        std::string prevToString();
 };

@@ -130,7 +130,8 @@ int main(int argc, char** argv) {
     // Definition of the heuristic.
 
     Graph g                   = Graph(cities, dao);
-    Solution initialSolution  = Solution(IDs);
+    double initialCost        = g.getCost(IDs);
+    Solution initialSolution  = Solution(IDs, initialCost);
     double initialTemperature = 139000;
     double coolingFactor      = 0.9;
     double epsilon            = 0.0010;
@@ -152,7 +153,7 @@ int main(int argc, char** argv) {
     if (activeOption)
         std::cout << h.printStatus();
     else
-        std::cout << h.printSolution();
+        std::cout << h.printBestSolution();
 
     dao.closeDB();
 

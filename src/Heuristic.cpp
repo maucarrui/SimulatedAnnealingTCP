@@ -26,30 +26,38 @@ std::string Heuristic::getStatus() {
 
 double Heuristic::calculateBatch(double T) {
     int c = 0, d = 0;
+    int si, sj;
     double r = 0.0;
     double currentCost, newCost, minCost;
-    std::vector<int> minSequence;
-    std::pair<double, std::vector<int>> ps;
+    std::vector<int> currentSeq, newSeq;
+    
+    std::pair<std::pair<int, int>, std::vector<int>> neighborData;
+    std::pair<int, int> swapped;
 
     int maxTries = L * 3;
 
     while ( (c < L) && (d < maxTries) ) {
-        ps = currentSolution.getRandomNeighbor(G);
+        neighborData = currentSolution.getRandomNeighbor();
+	swapped      = neighborData.first;
+	newSeq       = neighborData.second;
+
+        si = swapped.first;
+	sj = swapped.second;
 
 	currentCost = currentSolution.getCost();
-	newCost     = ps.first;
+	currentSeq  = currentSolution.getSequence();
+	newCost     = G.getSwappedCost(si, sj, currentCost, currentSeq);
 
 	if (newCost <= currentCost + T) {
 	    // Update the current solution.
 	    currentSolution.setCost(newCost);
-	    currentSolution.setSequence(ps.second);
+	    currentSolution.setSequence(newSeq);
 	  
 	    // Check if the new solution is a minimum.
             minCost = bestSolution.getCost();
 
 	    if (newCost <= minCost) {
-	        minSequence = currentSolution.getSequence();
-		bestSolution.setSequence(minSequence);
+		bestSolution.setSequence(newSeq);
 		bestSolution.setCost(newCost);
 	    }
 
@@ -118,22 +126,31 @@ void Heuristic::getInitialTemperature(double P) {
 
 double Heuristic::acceptedPercentage(Solution s, double T) {
     double c = 0.0;
-    Solution newSolution;
     Solution current = s;
-    std::pair<double, std::vector<int>> ps;
+    int si, sj;
 
     double currentCost, newCost;
+    std::vector<int> currentSeq, newSeq;
+
+    std::pair<std::pair<int, int>, std::vector<int>> neighborData;
+    std::pair<int, int> swapped;
     
     for (int i = 0; i < L; i++) {
-        ps = current.getRandomNeighbor(G);
+        neighborData = currentSolution.getRandomNeighbor();
+	swapped      = neighborData.first;
+	newSeq       = neighborData.second;
 
-	currentCost = current.getCost();
-	newCost     = ps.first;
+        si = swapped.first;
+	sj = swapped.second;
+
+	currentCost = currentSolution.getCost();
+	currentSeq  = currentSolution.getSequence();
+	newCost     = G.getSwappedCost(si, sj, currentCost, currentSeq);
 	
 	if (newCost <= currentCost + T) {
 	    // Update the current solution
 	    current.setCost(newCost);
-	    current.setSequence(ps.second);
+	    current.setSequence(newSeq);
 	    c++;
 	}
     }

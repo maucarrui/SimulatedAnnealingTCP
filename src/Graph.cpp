@@ -222,6 +222,58 @@ double Graph::getWeight(int u, int v) {
 }
 
 /**
+ * Returns the cost of a sequence of cities where two
+ * cities will be swapped.
+ * @param i    The index of one of the cities that will be swapped.
+ * @param j    The index of one of the cities that will be swapped.
+ * @param cost The cost of the current sequence.
+ * @param s    The sequence of cities.
+ * @return     The cost of the sequence of cities swapped.
+ */
+double Graph::getSwappedCost(int i, int j, double cost, std::vector<int> s) {
+    int n = s.size();
+
+    // A total of four edges have been modified
+    // in the new path: 
+    // e0 = (i-1, i) 
+    // e1 = (i, i+1)
+    // e2 = (j-1, j)
+    // e3 = (j, j+1)
+    // So the new cost consist of substracting the 
+    // weight of this deleted edges and adding the 
+    // new ones.
+    double prev_e0 = 0, e0 = 0;
+    double prev_e1 = 0, e1 = 0;
+    double prev_e2 = 0, e2 = 0;
+    double prev_e3 = 0, e3 = 0;
+    double diff;
+
+    if (i > 0 && j != i-1) {
+        prev_e0 = getWeight(s[i-1], s[i]);
+	e0      = getWeight(s[i-1], s[j]);
+    }
+    
+    if (i < n - 1 && j != i+1) {
+        prev_e1 = getWeight(s[i], s[i+1]);
+	e1      = getWeight(s[j], s[i+1]);
+    }
+
+    if (j > 0 && i != j-1) {
+        prev_e2 = getWeight(s[j-1], s[j]);
+	e2      = getWeight(s[j-1], s[i]);
+    }
+
+    if (j < n - 1 && i != j+1) {
+        prev_e3 = getWeight(s[j], s[j+1]);
+	e3      = getWeight(s[i], s[j+1]);
+    }
+
+    diff = (e0 + e1 + e2 + e3) - (prev_e0 + prev_e1 + prev_e2 + prev_e3);
+
+    return cost + (diff / norm);
+}
+
+/**
  * Returns the normalization of the graph.
  * @return The normalization of the graph.
  */

@@ -35,6 +35,7 @@ class Graph {
 	double getNaturalDistance(City u, City v);
         double getNormalization();
         double getCost(std::vector<int> sequence);
+        double getSwappedCost(int i, int j, double cost, std::vector<int> s);
         double getWeight(int u, int v);
         double getNorm();
 };	

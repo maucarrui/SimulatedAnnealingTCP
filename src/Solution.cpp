@@ -43,13 +43,14 @@ double Solution::getCost() {
 }
 
 /**
- * The solution generates a random neighbor, changing 
- * its sequence and its cost. Saving the previous 
- * sequence and the previous cost.
- *
- * @param G The graph to calculate the new cost.
+ * Generates a random neighbor of the current solution,
+ * this is done by swapping two cities in the sequence
+ * of the solution. The method returns the indexes of 
+ * the swapped cities and the new sequence.
+ * @return A pair containing the pair of indexes that 
+ *   were swapped and the new sequence.
  */
-std::pair<double, std::vector<int>> Solution::getRandomNeighbor(Graph G) {
+std::pair<std::pair<int, int>, std::vector<int>> Solution::getRandomNeighbor() {
     // Index of the cities that will be swapped
     int numCities = sequence.size();
     int i = 0, j = 0;
@@ -57,6 +58,8 @@ std::pair<double, std::vector<int>> Solution::getRandomNeighbor(Graph G) {
         i = rand() % numCities;
 	j = rand() % numCities;
     }
+
+    std::pair<int, int> swapped = std::make_pair(i, j);
     
     // Create the new sequence.
     std::vector<int> newSeq = sequence;
@@ -64,49 +67,7 @@ std::pair<double, std::vector<int>> Solution::getRandomNeighbor(Graph G) {
     newSeq[i] = newSeq[j];
     newSeq[j] = temp;
 
-    // Calculate the new cost.
-    double newCost;
-
-    // A total of four edges have been modified
-    // in the new path: 
-    // e0 = (i-1, i) 
-    // e1 = (i, i+1)
-    // e2 = (j-1, j)
-    // e3 = (j, j+1)
-    // So the new cost consist of substracting the 
-    // weight of this deleted edges and adding the 
-    // new ones.
-    double prev_e0 = 0, e0 = 0;
-    double prev_e1 = 0, e1 = 0;
-    double prev_e2 = 0, e2 = 0;
-    double prev_e3 = 0, e3 = 0;
-    double diff;
-
-    if (i > 0 && j != i-1) {
-        prev_e0 = G.getWeight(sequence[i-1], sequence[i]);
-	e0      = G.getWeight(sequence[i-1], sequence[j]);
-    }
-    
-    if (i < numCities - 1 && j != i+1) {
-        prev_e1 = G.getWeight(sequence[i], sequence[i+1]);
-	e1      = G.getWeight(sequence[j], sequence[i+1]);
-    }
-
-    if (j > 0 && i != j-1) {
-        prev_e2 = G.getWeight(sequence[j-1], sequence[j]);
-	e2      = G.getWeight(sequence[j-1], sequence[i]);
-    }
-
-    if (j < numCities - 1 && i != j+1) {
-        prev_e3 = G.getWeight(sequence[j], sequence[j+1]);
-	e3      = G.getWeight(sequence[i], sequence[j+1]);
-    }
-
-    diff = (e0 + e1 + e2 + e3) - (prev_e0 + prev_e1 + prev_e2 + prev_e3);
-
-    newCost = cost + (diff / G.getNorm());
-
-    return std::make_pair(newCost, newSeq);
+    return std::make_pair(swapped, newSeq);
 }
 
 /**

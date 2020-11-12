@@ -3,11 +3,6 @@
 #include <iostream>
 #include <string>
 
-#ifndef GRAPH_H
-#define GRAPH_H
-#include "Graph.h"
-#endif
-
 class Solution {
     private:
         double cost;
@@ -23,7 +18,7 @@ class Solution {
         double getCost();
 	std::vector<int> getSequence();
 
-	std::pair<double, std::vector<int>> getRandomNeighbor(Graph G);
+	std::pair<std::pair<int, int>, std::vector<int>> getRandomNeighbor();
 
         std::string toString();
 };

@@ -5,6 +5,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <algorithm>
 #include <map>
 
 #ifndef DAO_H
@@ -82,6 +83,7 @@ std::string usage() {
     s += "    <randomSeed>       The seed for the RNG.\n";
     s += "Options: \n";
     s += "    --verbose          Prints a more detailed execution of the TSP.\n";
+    s += "    --onlycost         Prints only the cost of the best found solution.\n";
 
     return s;
 }
@@ -89,15 +91,22 @@ std::string usage() {
 int main(int argc, char** argv) {
 
     bool activeOption = false;
+    bool costOption   = false;
 
     // Handle too few or too many arguments.
-    if (argc < 2 || argc > 5) {
+    if (argc < 4 || argc > 5) {
         std::cout << usage() << std::endl;
 	return -1;
     } else if (argc == 5) {
-        std::string option = "--verbose";
-        if (!option.compare(argv[4]))
+        std::string option1 = "--verbose";
+	std::string option2 = "--onlycost";
+
+        if (!option1.compare(argv[4]))
 	    activeOption = true;
+
+	else if (!option2.compare(argv[4]))
+	    costOption = true;
+
 	else {
 	    std::cout << usage() << std::endl;
 	    return -1;
@@ -114,6 +123,9 @@ int main(int argc, char** argv) {
 
     // Get the IDs from the file.
     std::vector<int> IDs = getIDs(citiesFile);
+
+    // Shuffles the vector.
+    std::random_shuffle(IDs.begin(), IDs.end());
 
     // Get the cities.
     DAO dao;
@@ -152,6 +164,8 @@ int main(int argc, char** argv) {
 
     if (activeOption)
         std::cout << h.printStatus();
+    else if (costOption)
+        std::cout << h.printBestCost();
     else
         std::cout << h.printBestSolution();
 

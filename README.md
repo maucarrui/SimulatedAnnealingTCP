@@ -1,5 +1,5 @@
 # Simulated Annealing TCP
-Solution generation of the Travelling Salesman Problem using the simulated annealing heuristic.
+Solution generation for the Travelling Salesman Problem using the simulated annealing heuristic.
 
 
 ## Requirements 
@@ -22,7 +22,7 @@ ninja
 
 ## Usage
 ```
-Usage: ./tsp <citiesFile.txt> <database.db> <randomSeed> [options] 
+Usage: ./tsp <citiesFile.txt> <database.db> <randomSeed> [option] 
 Arguments: 
     <citiesFile.txt>   The file contaning the cities' IDs for the TSP.
     <database.db>      The sqlite3 file that contains all the information.

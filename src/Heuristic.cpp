@@ -24,6 +24,50 @@ std::string Heuristic::getStatus() {
     return temp;
 }
 
+Solution Heuristic::sweepSolution(Solution s) {
+    bool foundBetter = true;
+    Solution current = s;
+    Solution minimum = s;
+    std::vector<int>::iterator it, jt;
+    std::vector<int> seq;
+    double currentCost, minCost, newCost;
+    int i, j;
+    int n = s.getSequence().size();
+
+    while (foundBetter) {
+        foundBetter = false;
+        currentCost = current.getCost();
+	seq         = current.getSequence();
+
+	for (i = 0; i <= n - 2; i++) {
+	    j = i + 1;
+
+	    for (j = i + 1; j <= n-1; j++) {
+	          minCost = minimum.getCost();
+		  newCost = G.getSwappedCost(i, j, currentCost, seq);
+		  
+		  if (newCost < minCost) {
+		      // Swap elements in the current sequence.
+		      std::vector<int> newSeq = seq;
+		      int temp = newSeq[i];
+		      newSeq[i] = newSeq[j];
+		      newSeq[j] = temp;
+
+		      minimum.setSequence(newSeq);
+		      minimum.setCost(newCost);
+		      
+		      foundBetter = true;
+		  }
+	    }
+	}
+
+	if (foundBetter)
+	    current = minimum;
+    }
+
+    return current;
+}
+
 double Heuristic::calculateBatch(double T) {
     int c = 0, d = 0;
     int si, sj;
@@ -73,11 +117,13 @@ double Heuristic::calculateBatch(double T) {
 
 void Heuristic::thresholdAcceptance() {
     double p = 0.0, q = 0.0;
-    
+
+    currentSolution = sweepSolution(currentSolution);
+    int i = 0;
     while (temperature > epsilon) {
         q = std::numeric_limits<double>::infinity();
 	
-	while (p <= q) { 
+	while (p <= q && q >= epsilon) { 
 	    q = p;
 	    p = calculateBatch(temperature);
 	}
@@ -85,8 +131,10 @@ void Heuristic::thresholdAcceptance() {
 	status += getStatus();
 
 	temperature *= coolingFactor;
+	i++;
     }
-
+    
+    bestSolution = sweepSolution(bestSolution);
 }
 
 void Heuristic::getInitialTemperature(double P) {
@@ -195,4 +243,8 @@ std::string Heuristic::printStatus() {
     temp += "\n ---------- \n";
     temp += printBestSolution();
     return temp;
+}
+
+std::string Heuristic::printBestCost() {
+   return std::to_string(bestSolution.getCost()) + "\n";
 }

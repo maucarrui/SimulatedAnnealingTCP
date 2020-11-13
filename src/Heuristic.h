@@ -29,6 +29,12 @@ class Heuristic {
         std::string status;
         std::string getStatus();
 
+        double calculateBatch(double T);
+        double acceptedPercentage(Solution s, double T);
+	double binarySearch(Solution s, double T1, double T2, double P);
+
+        Solution sweepSolution(Solution s);
+
     public:
 	Heuristic(Graph G, 
 		  Solution initialSolution, 
@@ -38,15 +44,13 @@ class Heuristic {
 		  double epislon,
 		  double epsilon_p);
 
-	double calculateBatch(double T);
 	void thresholdAcceptance();
 	void getInitialTemperature(double P);
-	double acceptedPercentage(Solution s, double T);
-	double binarySearch(Solution s, double T1, double T2, double P);
 
 	Solution getCurrentSolution();
         Solution getBestSolution();
         
         std::string printBestSolution();
         std::string printStatus();
+        std::string printBestCost();
 };

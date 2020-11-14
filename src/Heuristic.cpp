@@ -1,5 +1,23 @@
 #include "Heuristic.h"
 
+/**
+ * Constructor for the Simulated Annealing Heuristic to 
+ * find optimal solutions for the TSP.
+ * For this heuristic to work is neccesary to have the 
+ * graph representing the cities, an initial solution,
+ * an initial temperature, a cooling factor, the 
+ * amount of solutions that will be generated in each 
+ * step (L), and epsilons to tell when the heuristic 
+ * needs to stop and when the temperature is good enough.
+ *
+ * @param G                  The graph.
+ * @param initialSolution    The initial solution.
+ * @param initialTemperature The initial temperature.
+ * @param coolingFactor      The cooling factor.
+ * @param L                  The amount of solutions for each batch.
+ * @param epsilon            Epsilon to tell when to stop the heuristic.
+ * @param epsilon_p          Epsilon to tell when a temperature is good enough.
+ */
 Heuristic::Heuristic(Graph G, Solution initialSolution, 
 		    double initialTemperature, double coolingFactor,
 		    double L, double epsilon, double epsilon_p) {
@@ -15,6 +33,13 @@ Heuristic::Heuristic(Graph G, Solution initialSolution,
     this->bestSolution.setCost(std::numeric_limits<double>::infinity());
 }
 
+/**
+ * Returns a string representation of the status of the heuristic.
+ * The status of an heuristic consists of all the temperatures the 
+ * heuristic has gone through and its current cost in each temperature.
+ *
+ * @return The string representation of the status of the heuristic.
+ */
 std::string Heuristic::getStatus() {
     std::string temp;
     temp  = "-----------\n";
@@ -24,6 +49,16 @@ std::string Heuristic::getStatus() {
     return temp;
 }
 
+/**
+ * Sweeps a given solution and returns the local minimum found.
+ * Sweeping a solution consists of hill descending its search space
+ * by checking all the neighbors of the solution and checking if 
+ * one of those has a lower cost than the given one, repeating 
+ * this process until the solution is a minimum.
+ *
+ * @param s The solution to sweep.
+ * @return  A local minimum solution.
+ */
 Solution Heuristic::sweepSolution(Solution s) {
     bool foundBetter = true;
     Solution current = s;
@@ -68,6 +103,16 @@ Solution Heuristic::sweepSolution(Solution s) {
     return current;
 }
 
+/**
+ * Given a temperature, it calculates a batch of solutions.
+ * Keeping the best solution in the batch while also updating
+ * the minimal solution that has been found, and in the 
+ * end it returns the average number of solutions that were 
+ * accepted in the batch.
+ *
+ * @param  The temperature.
+ * @return The average number of solutions that were accepted in the batch.
+ */
 double Heuristic::calculateBatch(double T) {
     int c = 0, d = 0;
     int si, sj;
@@ -115,11 +160,19 @@ double Heuristic::calculateBatch(double T) {
     return (r / L);
 }
 
+/**
+ * Cools the temperatura while producing a batch 
+ * of solutions to the point where the temperature
+ * is lower or equal to the given epsilon. This 
+ * updates the current solution the heuristic has 
+ * produced while also keeping in track the best
+ * solution ever produced.
+ */
 void Heuristic::thresholdAcceptance() {
     double p = 0.0, q = 0.0;
 
     currentSolution = sweepSolution(currentSolution);
-    int i = 0;
+    
     while (temperature > epsilon) {
         q = std::numeric_limits<double>::infinity();
 	
@@ -131,12 +184,18 @@ void Heuristic::thresholdAcceptance() {
 	status += getStatus();
 
 	temperature *= coolingFactor;
-	i++;
     }
     
     bestSolution = sweepSolution(bestSolution);
 }
 
+/**
+ * Sets the best initial temperature for the heuristic
+ * to have.
+ *
+ * @param P A percentage of solutions that have to 
+ *     be accepted by temperature.
+ */
 void Heuristic::getInitialTemperature(double P) {
     double T1, T2;
     Solution s = currentSolution;
@@ -172,6 +231,14 @@ void Heuristic::getInitialTemperature(double P) {
     this->temperature = binarySearch(s, T1, T2, P);
 }
 
+/**
+ * Returns the percentage of accepted solutions using
+ * the given solution and the temperature.
+ * 
+ * @param s The solution.
+ * @param T The temperature.
+ * @return  The percentage of accepted solutions.
+ */
 double Heuristic::acceptedPercentage(Solution s, double T) {
     double c = 0.0;
     Solution current = s;
@@ -206,6 +273,16 @@ double Heuristic::acceptedPercentage(Solution s, double T) {
     return c / L;
 }
 
+/**
+ * Uses a binary search to find the best temperature 
+ * that has the highest percentage of accepted solutions.
+ *
+ * @param s  The solution.
+ * @param T1 The first solution.
+ * @param T2 The second solution.
+ * @param P  The percentage of accepted solutions.
+ * @return   The temperature which fits the most for the heuristic.
+ */
 double Heuristic::binarySearch(Solution s, double T1, double T2, double P) {
     double Tm = (T1 + T2) / 2;
     
@@ -225,10 +302,24 @@ double Heuristic::binarySearch(Solution s, double T1, double T2, double P) {
     return T1;
 }
 
+/**
+ * Returns a string representation of the current
+ * solution in the heuristic.
+ * 
+ * @return A string representation of the current
+ *     solution in the heuristic.
+ */
 Solution Heuristic::getCurrentSolution() {
     return currentSolution;
 }
 
+/**
+ * Returns a string representation of the best
+ * solution in the heuristic.
+ * 
+ * @return A string representation of the best
+ *     solution in the heuristic.
+ */
 std::string Heuristic::printBestSolution() {
     std::string temp;
     temp += "===== BEST SOLUTION =====\n";
@@ -237,6 +328,13 @@ std::string Heuristic::printBestSolution() {
     return temp;
 }
 
+/**
+ * Returns a string representation of the status
+ * of the heuristic.
+ * 
+ * @return A string representation of the status
+ *     of the heuristic.
+ */
 std::string Heuristic::printStatus() {
     std::string temp;
     temp += status;
@@ -245,6 +343,13 @@ std::string Heuristic::printStatus() {
     return temp;
 }
 
+/**
+ * Returns a string representation of the cost of 
+ * the best solution in the heuristic.
+ * 
+ * @return A string representation of the cost of
+ *     the best solution in the heuristic.
+ */
 std::string Heuristic::printBestCost() {
    return std::to_string(bestSolution.getCost()) + "\n";
 }

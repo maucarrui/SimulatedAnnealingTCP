@@ -1,0 +1,188 @@
+\documentclass{article}
+
+% Márgenes.
+\usepackage{geometry}
+\addtolength{\hoffset}{-0.2cm}
+\addtolength{\textwidth}{0.4cm}
+\addtolength{\voffset}{-0.5cm}
+\addtolength{\textheight}{1cm}
+
+% Caracteres especiales del español.
+\usepackage[utf8]{inputenc}
+
+% Para el lenguaje español.
+\usepackage[spanish]{babel}
+
+% Símbolos matemáticos
+\usepackage{amssymb}
+
+% Macros.
+\newcommand{\tbf}[1]{\textbf{#1}}
+
+\newcommand{\tit}[1]{\textit{#1}}
+
+\newcommand{\ttt}[1]{\texttt{#1}}
+
+% Título y autor del reporte.
+\title{Uso de la Heurística de Recocido Simulado para Resolver
+       el Problema del Agente Viajero (TSP)}
+\author{Carrasco-Ruiz Mauricio  \\
+	maucarrui@ciencias.unam.mx  \\
+        Universidad Nacional Autónoma de México (UNAM) \\
+        Facultad de Ciencias \\
+        Heurísiticas de Optimización Combinatoria \\
+	}
+
+% Fecha de hoy.
+\date{\today} 
+
+\begin{document}
+
+  \maketitle
+
+
+  \begin{abstract}
+    El Problema del Agente Viajero (TSP) es uno de los problemas 
+    más famosos de optimización combinatoria que pertenecen a la 
+    clase \tbf{NP-duro}. Los algoritmos que son capaces de resolver
+    este problema toman tiempo lineal o exponencial en producir algún 
+    resultado, por lo que para ello se optó por utilizar una heurística
+    para encontrar soluciones factibles a este problema; mejorando el
+    tiempo en el que se producen resultados. En este trabajo se utilizó 
+    la heurística de Aceptación por Umbrales implementada en el lenguaje de
+    programación \tbf{C++}. Se tomaron dos conjuntos de prueba para 
+    el problema: un conjunto de 40 ciudades y otro conjunto de 150 
+    ciudades. Los mejores resultados obtenidos a partir de 500 semillas 
+    de prueba fueron soluciones factibles con un costo que se podría 
+    considerar cercano al óptimo. Concluyendo de esta forma 
+    que la heurísitica de recocido simulado es una buena alternativa 
+    para resolver el problema del agente viajero.
+  \end{abstract}
+
+  \section{Introducción} \label{intro}
+  Dentro de la teoría de la computación existen clases en donde 
+  se encuentran contenidos problemas que cumplen cierta propiedad. Por ejemplo,
+  existe la clase \tbf{P} en donde se encuentran todos los problemas que 
+  pueden ser decididos por una Máquina de Turing en tiempo polinomial;
+  también existe la clase \tbf{NP} en donde se encuentran todos los 
+  problemas para los cuales existe una Máquina de Turing No Determinista que
+  los decide en tiempo polinomial. En este trabajo nos vamos a enfocar
+  en la clase \tbf{NP-duro}, en la cual se encuentran todos los 
+  problemas $H$ tales que todos los problemas $L$ de la clase \tbf{NP} se 
+  pueden reducir en tiempo polinomial a $H$; en otras palabras, los problemas
+  en \tbf{NP-duro} son al menos tan difíciles como los problemas más difíciles 
+  de \tbf{NP}.
+
+  \subsection{El Problema del Agente Viajero (\tit{Travelling Salesman Problem})}
+  \label{TSP}
+  El Problema del Agente Viajero (\tit{TSP}), es uno de los problemas más 
+  famosos que se encuentra en la clase \tbf{NP-duro}. Propuesto por el 
+  matemático Irlandés W.R. Hamilton y el matemático Inglés Thomas Kirkman 
+  en el siglo XIX, el problema es formulado de la siguiente manera:
+
+  \begin{quote}
+    \tit{``Dado un conjunto de ciudades en un mapa, ¿cuál es el camino 
+      más corto que pasa por todas ellas?''}
+  \end{quote}
+
+  Para ello el problema es representado mediante una gráfica $G = (V, E)$, 
+  en donde  el conjunto de vertices $V$ representa a las ciudades del mapa, 
+  y el conjunto de aristas $E \subseteq V \times V$ nos indica si existe 
+  o no un camino entre dos ciudades. Cabe mencionar que nuestras aristas 
+  van a tener pesos, es decir, tenemos una función 
+  $w: E \rightarrow \mathbb{R}^+$; de esta manera, podremos representar 
+  de una mejor manera la distancia o el costo que hay de ir de una ciudad 
+  a otra. Y también vamos a suponer que la gráfica es completa, de 
+  esta forma siempre va a existir una arista entre cualquiera par de 
+  ciudades.
+
+  Dicho todo lo anterior, el objetivo del TSP es encontrar un ciclo 
+  hamiltoniano dentro de la gráfica; es decir, un ciclo que pase por 
+  todos los vértices de la gráfica sin repetir aristas o vértices 
+  (más que el inicial y el final). Sin embargo, para este trabajo se 
+  hará una pequeña modificación al TSP y en vez de buscar un ciclo 
+  hamiltoniano, lo que se buscará es una trayectoria hamiltoniana; una 
+  trayectoria que pase por todos los vértices de la gráfica.
+
+  Si nosotros quisieramos encontrar esta trayectoria con un algoritmo,
+  entonces la manera más sencilla sería calcular todas las 
+  posibles trayectorias y regresar la que menos costo tenga y 
+  recorra a todos los vértices; sin embargo calcular todas las posibles 
+  trayectorias toma tiempo factorial, por lo que para conjuntos pequeños 
+  como con 40 o 150 ciudades, esto ya empieza a tomar una cantidad 
+  excesiva de tiempo. Entonces no es viable tener un algoritmo así para 
+  poder obtener la trayectoria que estamos buscando, para ello vamos 
+  a buscar una alternativa.
+
+  \subsection{Heurísticas} \label{heuristic}
+  Una heurística, informalmente, es una metodología que se sigue con 
+  la finalidad de conseguir una solución al problema en un tiempo 
+  relativamente rápido y lo \tit{suficientemente} buena, pero 
+  no necesariamente óptima o perfecta, en comparación a otras 
+  soluciones.
+
+  Por lo que para el TSP se decidió usar una heurística para poder 
+  obtener una solución factible debido a la velocidad y calidad que
+  ofrecen en sus resultados.
+
+  \subsubsection{Aceptación por Umbrales} \label{simulatedAnnealing}
+  Una heurística bastante conocida es la del \tbf{Recocido Simulado}. 
+  Propuesta en 1983 por Scott Kirkpatrick, Daniel Gelatt y Mario
+  Vecchi, su objetivo era simular la técnica llamada \tit{recocido}
+  utilizada en la metalurgía para deformar y fortalecer metales sin 
+  tener defectos en ellos. Esto lo consiguen calentando primero el 
+  metal a grandes temperaturas, después se enfría el metal y por 
+  último se moldea un poco; repetir este proceso asegura que el 
+  metal no perderá su dureza y tendrá la forma que se desea.
+
+  Podemos simular esta técnica dentro de la computación, en donde 
+  tendríamos una solución inicial que sería nuestro equivalente 
+  del metal en un forma original, y el objetivo sería ir calentando 
+  nuestra solución e irla moldeando para que poco a poco vaya tomando 
+  la forma de una solución óptima, concluyendo al final con una 
+  solución \tit{suficientemente} buena.
+
+  Sin embargo, la heurística que vamos a utilizar es un derivado 
+  de la del recocido simulado. La heurística de \tbf{Aceptación por 
+  Umbrales}, propuesta por Gunter Dueck y Tobias Scheuer en 1990,
+  consiste en tener una temperatura inicial $T$, una solución 
+  inicial $s$, una manera de generar otras soluciones $s'$ a partir
+  de una solución $s$, un factor de enfriamiento $\phi$, y una función 
+  de costo $f$ para evaluar a las soluciones.
+  
+  La idea principal de esta heurística será generar vecinos $s'$ de la 
+  solución actual $s$ (en un principio la inicial) y evaluar si se 
+  cumple que  $f(s') < f(s) + T$, si es así entonces ahora nuestra 
+  solución actual será $s'$ y se dirá entonces la solución $s'$ 
+  fue aceptada; de ahí su nombre. Continuamos, multiplicando 
+  a $phi$ por $T$ (bajamos la temperatura por el factor de enfriamento).
+  Y repetimos este proceso hasta que $T < \epsilon$ o se tenga un 
+  límite de soluciones aceptadas.
+
+  Las soluciones de la heurística serán las trayectorias hamiltonianas
+  de la gráfica, la función de costo será solo sumar el peso de todas 
+  las aristas de esta trayectoria, y para generar el vecino de una 
+  solución lo que vamos a hacer es intercambiar de lugar dos ciudades
+  en la trayectoria. De esta forma ya tenemos adaptada nuestra 
+  huerística para que pueda empezar a resolver el Problema del Agente 
+  Viajero.
+
+  \section{Desarrollo} \label{development}
+  \ldots
+
+  \section{Experimentación y Resultados} \label{results}
+  \ldots
+
+  \section{Discusión} \label{discussion}
+  \ldots
+
+  \section{Conclusión} \label{conclusion}
+  \ldots
+
+  \begin{thebibliography}{9}
+
+    \bibitem[X]{X} \ldots
+
+  \end{thebibliography}
+
+\end{document}

@@ -45,7 +45,7 @@
     El Problema del Agente Viajero (TSP) es uno de los problemas 
     más famosos de optimización combinatoria que pertenecen a la 
     clase \tbf{NP-duro}. Los algoritmos que son capaces de resolver
-    este problema toman tiempo lineal o exponencial en producir algún 
+    este problema toman tiempo factorial o exponencial en producir algún 
     resultado, por lo que para ello se optó por utilizar una heurística
     para encontrar soluciones factibles a este problema; mejorando el
     tiempo en el que se producen resultados. En este trabajo se utilizó 
@@ -128,7 +128,7 @@
   \subsubsection{Aceptación por Umbrales} \label{simulatedAnnealing}
   Una heurística bastante conocida es la del \tbf{Recocido Simulado}. 
   Propuesta en 1983 por Scott Kirkpatrick, Daniel Gelatt y Mario
-  Vecchi, su objetivo era simular la técnica llamada \tit{recocido}
+  Vecchi, su objetivo era simular la técnica de \tit{recocido}
   utilizada en la metalurgía para deformar y fortalecer metales sin 
   tener defectos en ellos. Esto lo consiguen calentando primero el 
   metal a grandes temperaturas, después se enfría el metal y por 
@@ -168,7 +168,136 @@
   Viajero.
 
   \section{Desarrollo} \label{development}
-  \ldots
+  Debido a que uno de los principales factores que se buscaron en el
+  programa fue la velocidad en la que producen resultados, el 
+  lenguaje de programación por el que se optó fue \tbf{C++} gracias a
+  la rapidez en la que se ejecutan los programas a comparación de otros 
+  lenguajes compilados o interpretados (Python, Vala, entre otros).
+
+  Cabe mencionar que se va a trabajar con una base de datos en donde 
+  se encuentra la información de 1092 ciudades y sus conexiones entre 
+  ellas.
+
+  \subsection{Diseño del proyecto}
+  Aprovechando que \tbf{C++} sigue el paradigma de \tbf{Orientación a 
+  Objetos}, se decidió estructurar al programa en diversas clases con 
+  la finalidad de modularizar lo más posible el TSP. Por esa razón,
+  terminamos con las sigientes clases:
+  
+  \begin{itemize}
+    \item Ciudad
+
+      El objeto ciudad, como su nombre lo indica, representa a una ciudad
+      en el TSP. Sus atributos consisten en la información que nosotros 
+      podemos obtener de las ciudades en la base de datos, las cuales son:
+      un identificador (ID), su nombre, el país en el que se encuentra, 
+      la población que tiene, su latitud y su longitud. Este objeto 
+      como tal no tiene métodos que nos sean de interés, pero hay que 
+      mencionar que por diseño se decidió colocar \tit{getters} para 
+      poder obtener, sin acceder a atributos privados, la información 
+      deseada.
+
+    \item DAO (\tit{Data Access Object})
+      
+      El \tit{Data Access Object} es aquel con el cual podimos establecer 
+      una conexión con la base de datos y así conseguir la información de 
+      las ciudades y sus conexiones. Su atributo consiste únicamente en el 
+      apuntador en donde se encuentra alojada nuestra base de datos en la
+      máquina, y sus métodos consisten en obtener una ciudad dado su 
+      identificador y obtener una conexión entre ciudades dados los dos 
+      identificadores de las ciudades.
+      
+    \item Gráfica
+      
+      Hay muchas maneras de representar a una gráfica dentro de un programa
+      de cómputo. Sin embargo, como constantemente se va a estar buscando 
+      el peso de las adyacencias entre dos ciudades para calcular el costo 
+      de una solución, es necesario que tengamos este valor en la menor 
+      cantidad de tiempo para que nuestro programa no sea tan lento 
+      al momento de calcular distancias. Por esa razón, las gráficas 
+      son representadas mediante su matriz de adyacencias.
+
+      También para poder optimizar nuestra matriz y que ocupe la menor 
+      cantidad de espacio posible, lo que se decidió es sólo construir la 
+      matriz de la subgráfica generadora que contiene sólo a las ciudades 
+      con las que se va a trabajar para el TSP; pues en el caso de 
+      tener 40 ciudades, nuestra matriz sería de tamaño $40^2 = 1600$,
+      en comparación de construir la matriz de adyacenciencia para la 
+      gráfica completa que sería de tamaño $1092^2 = 1192464$.
+
+      Un detalle importante sobre nuestra implementación es que no para 
+      cualquier par de ciudades va a existir una conexión entre ellas, por
+      lo que para solucionar este problema lo que hacemos es asignarles
+      una arista con un peso muy grande; el peso es calculado de la 
+      siguiente manera:
+
+      \[ w(u, v) = d(u, v) \cdot max_d(S) \]
+      
+      En donde $S$ es el conjunto de ciudades para las cuales vamos 
+      a trabajar el TSP, $u, v \in V$, $d(u, v)$ se refiere a la 
+      distancia natural que existe entre $u$ y $v$, y $max_d(S)$ es 
+      el peso más grande de la subgráfica generada por $S$. De esta forma,
+      si $u$ y $v$ no se encontraban originalmente conectadas en 
+      $G$, ahora lo van a estar con una arista cuyo peso será lo 
+      suficientemente grande para que nuestra heurística no la coloque 
+      en nuestra solución.
+      
+    \item Solución
+      
+      Como su nombre lo indica, representa una solución dentro de nuestro 
+      programa. Nosotros entendemos como una solución a una secuencia de 
+      números donde cada número es el identificador de una ciudad, es decir
+      una trayectoria dentro de nuestra subgráfica. Como la gráfica es 
+      completa desde un principio, entonces cualquier secuencia de números 
+      (con la única excepción de que no se tengan repetidos) va a ser una 
+      solución válida. Sin embargo, no toda solución que nuestro programa
+      produzca va a ser una \tit{buena} solución, pues la trayectoria puede 
+      que contenga alguna o varias aristas con un peso gigantesco; a 
+      aquellas soluciones que cuyas aristas sí estaban originalmente en la 
+      gráfica les llamaremos \tbf{factibles}. Entonces para diferenciar 
+      soluciones y poder determinar cuáles son factibles y cuáles no, 
+      vamos a tener la siguiente función de costo:
+
+      \[ f(T) = \frac{\sum_{i=2}^k w(v_{i-1}, v_i)}{N(S)} \]
+
+      Donde $T = (v_0, \cdots, v_k)$ es la trayectoria que representa
+      nuestra solución, y $N(S)$ es el normalizador del conjunto $S$.
+      Nosotros definimos al normalizador como:
+      
+      \[ N(S) = \sum_{d \in L'} d \]
+      
+      En donde $L'$ es la lista que contiene a las $|S|-1$ aristas 
+      más pesadas de la subgráfica generadora (después de haber 
+      agregado las aristas faltantes para completar la gráfica).
+
+      De esta forma, las soluciones factibles se van a evaluar entre 
+      0 y 1, y las soluciones no factibles se van a evualar a algo 
+      mayor que 1.
+
+    \item Huerística
+
+      Lo más importante de nuestro proyecto, la heurística. Como se 
+      mencionó en la \ref{intro}, la aceptación por umbrales consiste 
+      en tener una gráfica, una temperatura, una cantidad de soluciones 
+      por lote, un factor de enfriamiento y epsilons. Todo lo anterior,
+      son los atributos que va a contener nuestra clase Heurística.
+      
+      Después de eso, se tienen dos métodos que describen el 
+      funcionamiento de la heurística. Primero tenemos el método
+      \tbf{Calcula lote} que se encarga de producir un lote de soluciones
+      y quedarnos con la mejor aptitud tuvo durante todo el proceso;
+      manteniendo a la vez, la mejor solución que se ha encontrado hasta 
+      ese momento. Lo que regresa el método anterior es el promedio de 
+      soluciones que se aceptaron y la mejor solución del lote. Y después
+      tenemos el método de \tbf{aceptación por umbrales}, el cual se encarga
+      de disminuir la temperatura hasta que sea menor a una $\epsilon$,
+      mientras que a la vez, usando el método anterior, calcula un lote 
+      soluciones hasta que se llegue a un equilibrio térmico (lo cual se 
+      puede entender como que el promedio de la cantidad de soluciones 
+      aceptadas dada una temperatura y la solución actual sea mayor a la 
+      de la solución anterior.
+  \end{itemize}
+  
 
   \section{Experimentación y Resultados} \label{results}
   \ldots

@@ -16,6 +16,9 @@
 % Símbolos matemáticos
 \usepackage{amssymb}
 
+% Algoritmos
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+
 % Macros.
 \newcommand{\tbf}[1]{\textbf{#1}}
 
@@ -274,10 +277,20 @@
       0 y 1, y las soluciones no factibles se van a evualar a algo 
       mayor que 1.
 
+      Ahora, para generar el vecino de una solución, como 
+      se mencionó en la sección \ref{intro}, consiste en intercambiar
+      a dos ciudades de la secuencia de orden. De esta manera obtenemos
+      una nueva trayectoria hamiltoniana que puede que ahora use o no 
+      una de las aristas que estaban originalmente en la subgráfica 
+      generadora. Por lo tanto para este método lo único que 
+      se necesitó fueron dos números aleatorios que se encuentren 
+      dentro del rango de los índices de la trayectoria, los 
+      intercambiamos y listo.
+
     \item Huerística
 
       Lo más importante de nuestro proyecto, la heurística. Como se 
-      mencionó en la \ref{intro}, la aceptación por umbrales consiste 
+      mencionó en la sección \ref{intro}, la aceptación por umbrales consiste 
       en tener una gráfica, una temperatura, una cantidad de soluciones 
       por lote, un factor de enfriamiento y epsilons. Todo lo anterior,
       son los atributos que va a contener nuestra clase Heurística.
@@ -296,8 +309,138 @@
       puede entender como que el promedio de la cantidad de soluciones 
       aceptadas dada una temperatura y la solución actual sea mayor a la 
       de la solución anterior.
+
+      \begin{algorithm}[H]
+        \caption{Calcula lote}
+        \SetAlgoLined
+        $c \leftarrow 0$\;
+        $r \leftarrow 0.0$\;
+        \While{$c < L$} {
+          $s' \leftarrow vecino(s)$\;
+          \If{$f(s') < f(s) + T$} {
+            $s \leftarrow s'$\;
+            $c \leftarrow c + 1$\;
+            $r \leftarrow r + f(s')$\;
+          }
+        }
+        \Return $\frac{r}{L}, s$\;
+      \end{algorithm}
+
+      \begin{algorithm}[H]
+        \caption{Aceptación por Umbrales}
+        \SetAlgoLined
+        $p \leftarrow 0$\;
+        \While{$T>\epsilon$}{
+          $q \leftarrow \infty$\;
+          \While{$p \leq p$}{
+            $q \leftarrow p$\;
+            $p,s \leftarrow CalculaLote(T,s)$\;
+          }
+          $T \leftarrow \phi T$\;
+        }
+      \end{algorithm}
   \end{itemize}
   
+  \subsection{Optimizaciones sobre el proyecto}
+
+  El proyecto ofrece en distintos puntos varias optimizaciones
+  sobre el espacio y tiempo. En un total de 3 optimizaciones, 
+  dos afectan el tiempo reduciéndolo de lineal a constante 
+  y una afecta espacio reduciendolo de lineal a constante. 
+  Mejorando notablemente el rendimiento de nuestro 
+  proyecto.
+  
+  \subsubsection{Tabla de índices para la matriz de adyacencia}
+  Como mencionamos, nuestra gráfica sólo va a contener a las 
+  ciudades (vértices) sobre los cuales vamos a trabajar para el 
+  TSP. Por ende, buscar el renglón o columna en el que se 
+  encuentra una ciudad con ID $k$ no necesariamente va a corresponder
+  al $k$-ésimo renglón y columna. Para resolver esto, y a la vez 
+  preservar la ventaja de que la matriz nos da tiempo de acceso 
+  constante a sus elementos, se decidió utilizar una tabla 
+  hash (\tit{hash table}) en donde la llave sería el identificador 
+  de la ciudad y su valor el índice de la matriz que le corresponde 
+  a la ciudad. De esta forma, dada la tabla hash $h$ y el 
+  idenficador $k$ de la ciudad, encontrar el índice de la ciudad 
+  en la matriz es sólo hacer la operación $h(k)$.
+
+  El acceso a elementos de una hash table dada la llave en C++
+  toma tiempo constante, y una vez obtenido el valor de la 
+  llave, buscar ese elemento en nuestra matriz de adyacencias 
+  toma igual tiempo constante. Por lo que la optimización preserva
+  que el tiempo de acceso para ver el peso entre la conexión de 
+  dos ciudades sea de $O(1)$; con el pequeño costo de que ademas 
+  de tener nuestra matriz de tamaño $O(|S|^2)$, ahora 
+  tenemos una tabla de tamaño $O(|S|)$.
+  
+  \subsubsection{Costo del vecino de una solución}
+  Calcular el costo de una trayectoria toma tiempo lineal, pues 
+  necesariamente hay que sumar el peso de todas las aristas que 
+  se encuentran en nuestra trayectoria. Sin embargo, al momento 
+  de obtener un vecino, podemos calcular el costo de este 
+  vecino en tiempo constante.
+
+  Sea $T = (v_0, ..., v_i, ..., v_j, ..., v_k$) nuestra 
+  solución, podemos generar un vecino intercambiando de posición
+  a $v_i$ con $v_j$. Si nosotros lo vemos como una trayectoria,
+  lo anterior sería lo equivalente a borrar 4 aristas y 
+  agregar 4 nuevas aristas. Las aristas que se ven modificadas
+  son las siguientes:
+  
+  \begin{itemize}
+    \item Eliminadas
+      \begin{itemize}
+        \item $v_{i-1}v_i = e_1$
+        \item $v_iv_{i+1} = e_2$
+        \item $v_{j-1}v_j = e_3$
+        \item $v_jv_{j+1} = e_4$
+      \end{itemize}
+    \item Agregadas
+      \begin{itemize}
+        \item $v_{i-1}v_j = e_1'$
+        \item $v_jv_{i+1} = e_2'$
+        \item $v_{j-1}v_i = e_3'$
+        \item $v_iv_{j+1} = e_4'$
+      \end{itemize}
+  \end{itemize}
+
+  Por lo que si teníamos una solución $s$ y su costo $f(s)$, 
+  si generamos un nuevo vecino $s'$, calcular su costo solo 
+  sería hacer la siguiente operación:
+
+  \[ f(s') = f(s) + 
+             \frac{(w(e_1)' + w(e_2)' + w(e_3)' + w(e_4')) -
+                   (w(e_1) + w(e_2) + w(e_3) +w(e_4))}{N(S)} \]
+
+  Es decir, restamos el costo de las aristas que eliminamos y 
+  sumamos el costo de las que agregamos, lo dividimos todo 
+  sobre el normalizador y lo sumamos con el costo que 
+  teníamos de $s$. De esta forma, una operación que 
+  antes nos hubiera tomado tiempo lineal en calcular, ahora 
+  nos toma tiempo constante. Y más importante aún, solo tenemos 
+  calcular una sola vez en tiempo lineal el costo de una solución 
+  durante todo el proyecto, el de la solución inicial; calcular el 
+  costo de las siguientes soluciones que se vayan a generar en 
+  la heurísitica tomará tiempo constante pues son vecinas de la 
+  solución inicial, o vecinas de la vecina y así consecutivamente.
+
+  \subsubsection{Sólo 3 objetos Soluciones en toda la ejecución}
+  Una manera sencilla de programar este proyecto es que cada 
+  que se genere una nueva solución se cree un nuevo objeto 
+  solución. El problema radica en que si el programa se ejecuta 
+  la suficiente cantidad de tiempo, la memoria que se va a 
+  ocupar va a ser bastante pues no hay un recolector de basura 
+  para C++, y liberar la memoria manualmente puede ser un reto 
+  un tanto peligroso si no se sabe lo que se hace.
+
+  Para resolver el problema, se decidió tener un total de 
+  3 objetos soluciones, los cuales por medio de métodos
+  \tit{setters} y \tit{getters} pueden cambiar sus atributos 
+  sin la necesidad de tener que crear nuevos objetos
+  que tengan estos nuevos valores. Mejorando de esta manera
+  la cantidad de espacio que consume nuestro programa, terminando 
+  con un número constante de objetos que existen durante la 
+  ejecución.
 
   \section{Experimentación y Resultados} \label{results}
   \ldots

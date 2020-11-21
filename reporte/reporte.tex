@@ -16,6 +16,13 @@
 % Símbolos matemáticos
 \usepackage{amssymb}
 
+% Binomio de Newton.
+\usepackage{amsmath}
+
+% Imágenes
+\usepackage{graphicx}
+\graphicspath{ {./img/} }
+
 % Algoritmos
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 
@@ -55,7 +62,7 @@
     la heurística de Aceptación por Umbrales implementada en el lenguaje de
     programación \tbf{C++}. Se tomaron dos conjuntos de prueba para 
     el problema: un conjunto de 40 ciudades y otro conjunto de 150 
-    ciudades. Los mejores resultados obtenidos a partir de 500 semillas 
+    ciudades. Los mejores resultados obtenidos a partir de 250 semillas 
     de prueba fueron soluciones factibles con un costo que se podría 
     considerar cercano al óptimo. Concluyendo de esta forma 
     que la heurísitica de recocido simulado es una buena alternativa 
@@ -442,19 +449,840 @@
   con un número constante de objetos que existen durante la 
   ejecución.
 
+  \subsection{Optimizaciones para obtener mejores resultados}
+  La heurística es capaz de empezar de una solución cualquiera
+  y a partir de ella hacer una búsqueda local para encontrar 
+  una mejor solución. Sin embargo, hasta este momento no teníamos
+  una manera de asegurar que la mejor solución a la que llegabamos 
+  era un mínimo local (nunca podrémos asegurar que sea un mínimo 
+  global). Por esa misma razón, al finalizar la heurística de 
+  aceptación por umbrales se hará un \tbf{descenso por colinas}
+  de la mejor solución para de esta forma asegurar que lo que 
+  va a regresar nuestro programa es un mínimo local; todo 
+  esto con la esperanza de que el programa regrese mejores 
+  resultados.
+
+  El descenso por colinas de una solución consiste en revisar a
+  todos los vecinos que tiene esta solución y revisar si alguno
+  es mejor solución de la que tenemos actualmente, si es así 
+  entonces nos quedamos con el mejor vecino y repetimos el 
+  proceso hasta que no se encuentre un mejor vecino de una 
+  solución. Asegurando de esta forma, que lo que tenemos es 
+  un mínimo local.
+
+  \subsubsection{Descenso por colinas para la solución inicial}
+  Otra posibilidad que tenemos a nuestras manos es hacer el 
+  procedimiento anterior pero con la solución inicial, de 
+  esta forma la heurística empezaría desde un mínimo local.
+  Desafortunadamente esto no asegura que vayamos a obtener 
+  mejores resultados, pues siempre se puede dar el caso de que 
+  una peor solución nos hubiera llevado a un mejor mínimo local
+  al final.
+
+  \subsection{Una mejor temperatura inicial}
+  Podemos fijar una temperatura inicial, o podemos aplicar una
+  técnica de búsqueda para poder encontrar una temperatura
+  que dado un porcentaje de aceptación ($accT$), encuentre la 
+  temperatura más cercana a la inicial que proponemos, que cumpla 
+  que el número promedio de soluciones que son aceptadas usando 
+  esa temperatura sea el porcertanje de aceptación 
+  que nosotros pedimos; esta búsqueda la realizamos mediante
+  una búsqueda binaria entre el doble de la temperatura, y la 
+  mitad de esta.
+
   \section{Experimentación y Resultados} \label{results}
-  \ldots
+  Para la experimentación se decidió fijar ciertos valores para
+  que la heurística siempre tratará de conseguir los mejores 
+  resultados posibles. El factor de enfriamiento se decidió 
+  asignar como $\phi = 0.9$, para que de esta forma el programa 
+  decendiera lentamente a una \tit{buena} solución; aunque
+  esto implicara que se tardara más. De igual forma, 
+  $\epsilon = 0.0010$ para que el sistema baje a una temperatura 
+  relativamente muy baja para aumentar la posibilidad de encontrar
+  una buena solución.
+
+  Dicho lo anterior, los valores que entonces sí se modificaron 
+  y con los que se experimentaron fue con la temperatura inicial 
+  del sistema ($T$).
+
+  Los resultados que se presentan a continuación, fueron con 
+  250 semillas para el generador de números aleatorias, son con 
+  un número de lote fijo de $L = 3000$ y con descenso por 
+  colinas en la mejor solución y también en la solución inicial.
+
+  \begin{table}[!htb]
+    \caption{40 ciudades, 
+             $L=3000$, 
+             Descenso en solución inicial y final}
+    \begin{minipage}{.5\linewidth}
+      \caption{A: $T= 3000$}
+      \centering
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        36      & 0.224633    \\
+        \hline
+        90      & 0.225677    \\
+        \hline
+        115     & 0.222997    \\
+        \hline
+        118     & 0.225004    \\
+        \hline
+        127     & 0.225093    \\
+        \hline
+        128     & 0.224885    \\
+        \hline
+        157     & 0.225004    \\
+        \hline
+        161     & 0.225676    \\
+        \hline
+        215     & 0.225212    \\
+        \hline
+        249     & 0.225577    \\
+      \end{tabular}
+    \end{minipage}%
+    \begin{minipage}{.5\linewidth}
+      \centering
+      \caption{B: $T=6000$}
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        80      & 0.217518 \\
+        \hline
+        118     & 0.221666 \\
+        \hline
+        119     & 0.222579 \\
+        \hline
+        194     & 0.223512 \\
+        \hline
+        90      & 0.224230 \\
+        \hline
+        54      & 0.225004 \\
+        \hline
+        148     & 0.225277 \\
+        \hline
+        138     & 0.226015 \\
+        \hline
+        168     & 0.226384 \\
+        \hline
+        226     & 0.226424 \\
+      \end{tabular}
+    \end{minipage}
+    \begin{minipage}{.5\linewidth}
+      \centering
+        \caption{C: $T = 12000$}
+        \begin{tabular}{l|l}
+          Semilla & Mejor costo \\
+          \hline
+          89      & 0.222075 \\
+          \hline
+          241     & 0.222579 \\
+          \hline
+          215     & 0.222741 \\
+          \hline
+          219     & 0.222780 \\
+          \hline
+          162     & 0.222906 \\
+          \hline
+          136     & 0.225004 \\
+          \hline
+          98      & 0.225004 \\
+          \hline
+          35      & 0.225682 \\
+          \hline
+          85      & 0.226198 \\
+          \hline
+          214     & 0.226729 \\
+        \end{tabular}
+    \end{minipage}
+    \begin{minipage}{.5\linewidth}
+      \centering
+        \caption{D: $accT = 90 \%$}
+        \begin{tabular}{l|l}
+            Semilla & Mejor costo \\
+            \hline
+            166     & 0.219120 \\
+            \hline
+            94      & 0.222579 \\
+            \hline
+            88      & 0.223916 \\
+            \hline
+            81      & 0.225004 \\
+            \hline
+            145     & 0.225127 \\
+            \hline
+            87      & 0.226121 \\
+            \hline
+            129     & 0.226537 \\
+            \hline
+            10      & 0.227090 \\
+            \hline
+            47      & 0.227237 \\
+            \hline
+            19      & 0.227623 \\
+        \end{tabular}
+    \end{minipage}
+    \begin{minipage}{\linewidth}
+      \centering
+        \caption{E: $accT = 75 \%$}
+        \begin{tabular}{l|l}
+            Semilla & Mejor costo \\
+            \hline
+            132     & 0.217518 \\
+            \hline
+            54      & 0.219120 \\
+            \hline
+            87      & 0.219120 \\
+            \hline
+            6       & 0.221074 \\
+            \hline
+            181     & 0.221410 \\
+            \hline
+            127     & 0.222834 \\
+            \hline
+            18      & 0.224551 \\
+            \hline
+            34      & 0.225002 \\
+            \hline
+            134     & 0.225285 \\
+            \hline
+            239     & 0.225373 \\
+        \end{tabular}
+    \end{minipage} 
+  \end{table}
+
+  \begin{table}[!htbp]
+    \caption{150 ciudades, 
+             $L=3000$, 
+             Descenso en solución inicial y final}
+    \begin{minipage}{.5\linewidth}
+      \caption{A: $T= 3000$}
+      \centering
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        46      & 101149.148484 \\
+        \hline
+        66      & 101149.162495 \\
+        \hline
+        210     & 101149.164516 \\
+        \hline
+        198     & 101149.170395 \\
+        \hline
+        48      & 101149.181504 \\
+        \hline
+        168     & 101149.181876 \\
+        \hline
+        31      & 101149.191748 \\
+        \hline
+        232     & 101149.199739 \\
+        \hline
+        128     & 101149.201910 \\
+        \hline
+        204     & 108466.066545 \\
+      \end{tabular}
+    \end{minipage}%
+    \begin{minipage}{.5\linewidth}
+      \centering
+      \caption{B: $T=6000$}
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        46      & 101149.167010 \\
+        \hline
+        128     & 101149.167047 \\
+        \hline
+        82      & 101149.180004 \\
+        \hline
+        210     & 101149.180773 \\
+        \hline
+        148     & 108466.060109 \\
+        \hline
+        43      & 108466.066469 \\
+        \hline
+        212     & 108466.068049 \\
+        \hline
+        86      & 108466.069727 \\
+        \hline
+        116     & 108466.078946 \\
+        \hline
+        61      & 108466.079458 \\
+      \end{tabular}
+    \end{minipage}
+    \begin{minipage}{.5\linewidth}
+      \centering
+      \caption{C: $T = 12000$}
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        191     & 0.209159 \\
+        \hline
+        67      & 0.219317 \\
+        \hline
+        239     & 0.223357 \\
+        \hline
+        28      & 0.227226 \\
+        \hline
+        225     & 101149.164585 \\
+        \hline
+        211     & 101149.166450 \\
+        \hline
+        122     & 101149.173254 \\
+        \hline
+        52      & 108466.057904 \\
+        \hline
+        120     & 108466.066034 \\
+        \hline
+        186     & 108466.072210 \\
+      \end{tabular}
+    \end{minipage}
+    \begin{minipage}{.5\linewidth}
+      \centering
+      \caption{D: $accT = 90 \%$}
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        154     & 0.175001 \\
+        \hline
+        147     & 0.182646 \\
+        \hline
+        213     & 0.183711 \\
+        \hline
+        32      & 0.188599 \\
+        \hline
+        54      & 0.193750 \\
+        \hline
+        250     & 0.197765 \\
+        \hline
+        221     & 0.198536 \\
+        \hline
+        102     & 0.199479 \\
+        \hline
+        40      & 0.199681 \\
+        \hline
+        26      & 0.202705 \\
+      \end{tabular}
+    \end{minipage}
+    \begin{minipage}{\linewidth}
+      \centering
+      \caption{E: $accT = 75 \%$}
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        178     & 0.186235 \\
+        \hline
+        184     & 0.194286 \\
+        \hline
+        68      & 0.194661 \\
+        \hline
+        52      & 0.195728 \\
+        \hline
+        210     & 0.196143 \\
+        \hline
+        21      & 0.196469 \\
+        \hline
+        130     & 0.196717 \\
+        \hline
+        127     & 0.196820 \\
+        \hline
+        12      & 0.197925 \\
+        \hline
+        225     & 0.198879 \\
+      \end{tabular}
+    \end{minipage} 
+  \end{table}
+
+  \clearpage
+
+  Ahora presentamos las soluciones encontradas, con los mismos 
+  valores anteriores, pero sólo haciendo descenso por colinas en 
+  la mejor solución.
+
+  \begin{table}[!htb]
+    \caption{40 ciudades, 
+             $L=3000$, 
+             Descenso solo en la solución final}
+    \begin{minipage}{.5\linewidth}
+      \caption{F: $T= 3000$}
+      \centering
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        181     & 0.219120 \\
+        \hline
+        10      & 0.222075 \\
+        \hline
+        48      & 0.223845 \\
+        \hline
+        115     & 0.224230 \\
+        \hline
+        172     & 0.225257 \\
+        \hline
+        132     & 0.225372 \\
+        \hline
+        114     & 0.226739 \\
+        \hline
+        73      & 0.227482 \\
+        \hline
+        59      & 0.227591 \\
+        \hline
+        217     & 0.227884 \\
+      \end{tabular}
+    \end{minipage}%
+    \begin{minipage}{.5\linewidth}
+      \centering
+      \caption{G: $T=6000$}
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        128     & 0.219120 \\
+        \hline
+        207     & 0.222197 \\
+        \hline
+        16      & 0.224254 \\
+        \hline
+        194     & 0.224508 \\
+        \hline
+        193     & 0.224908 \\
+        \hline
+        234     & 0.224993 \\
+        \hline
+        172     & 0.225476 \\
+        \hline
+        17      & 0.225577 \\
+        \hline
+        23      & 0.225896 \\
+        \hline
+        129     & 0.226082 \\
+      \end{tabular}
+    \end{minipage}
+    \begin{minipage}{.5\linewidth}
+      \centering
+      \caption{H: $T = 12000$}
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        219     & 0.222834 \\
+        \hline
+        55      & 0.222846 \\
+        \hline
+        44      & 0.225004 \\
+        \hline
+        89      & 0.225004 \\
+        \hline
+        151     & 0.225125 \\
+        \hline
+        169     & 0.227963 \\
+        \hline
+        162     & 0.228559 \\
+        \hline
+        103     & 0.228628 \\
+        \hline
+        94      & 0.229208 \\
+        \hline
+        40      & 0.229478 \\
+      \end{tabular}
+    \end{minipage}
+    \begin{minipage}{.5\linewidth}
+      \centering
+      \caption{I: $accT = 90 \%$}
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        114     & 0.217518 \\
+        \hline
+        226     & 0.217518 \\
+        \hline
+        41      & 0.220211 \\
+        \hline
+        85      & 0.222579 \\
+        \hline
+        98      & 0.222733 \\
+        \hline
+        130     & 0.223085 \\
+        \hline
+        137     & 0.223291 \\
+        \hline
+        169     & 0.223312 \\
+        \hline
+        230     & 0.225767 \\
+        \hline
+        101     & 0.226069 \\
+      \end{tabular}
+    \end{minipage}
+    \begin{minipage}{\linewidth}
+      \centering
+      \caption{J: $accT = 75 \%$}
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        38      & 0.217518 \\
+        \hline
+        110     & 0.221592 \\
+        \hline
+        42      & 0.222277 \\
+        \hline
+        8       & 0.223130 \\
+        \hline
+        224     & 0.223914 \\
+        \hline
+        23      & 0.224230 \\
+        \hline
+        124     & 0.225127 \\
+        \hline
+        55      & 0.225244 \\
+        \hline
+        232     & 0.225285 \\
+        \hline
+        216     & 0.225676 \\
+      \end{tabular}
+    \end{minipage} 
+  \end{table}
+
+  \begin{table}[!htbp]
+    \caption{150 ciudades, 
+             $L=3000$, 
+             Descenso sólo en la solución final}
+    \begin{minipage}{.5\linewidth}
+      \caption{F: $T= 3000$}
+      \centering
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        93      & 101149.148309 \\
+        \hline
+        162     & 101149.158434 \\
+        \hline
+        92      & 101149.173328 \\
+        \hline
+        98      & 108466.065328 \\
+        \hline
+        49      & 108466.069165 \\
+        \hline
+        4       & 108466.070370 \\
+        \hline
+        233     & 108466.075781 \\
+        \hline
+        195     & 108466.077140 \\
+        \hline
+        77      & 108466.080031 \\
+        \hline
+        247     & 108466.084607 \\
+      \end{tabular}
+    \end{minipage}%
+    \begin{minipage}{.5\linewidth}
+      \centering
+      \caption{G: $T=6000$}
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        40      & 101149.156038 \\
+        \hline
+        81      & 101149.174166 \\
+        \hline
+        86      & 101149.178368 \\
+        \hline
+        52      & 101149.181238 \\
+        \hline
+        124     & 101149.182890 \\
+        \hline
+        190     & 101149.183107 \\
+        \hline
+        27      & 101149.195528 \\
+        \hline
+        151     & 101149.196486 \\
+        \hline
+        12      & 108466.052971 \\
+        \hline
+        175     & 108466.069148 \\
+      \end{tabular}
+    \end{minipage}
+    \begin{minipage}{.5\linewidth}
+      \centering
+      \caption{H: $T = 12000$}
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        191     & 0.196404 \\
+        \hline
+        56      & 0.196579 \\
+        \hline
+        27      & 0.213240 \\
+        \hline
+        144     & 0.220249 \\
+        \hline
+        136     & 0.224925 \\
+        \hline
+        157     & 0.224965 \\
+        \hline
+        58      & 0.225154 \\
+        \hline
+        167     & 101149.163459 \\
+        \hline
+        158     & 101149.168055 \\
+        \hline
+        111     & 101149.198612 \\
+      \end{tabular}
+    \end{minipage}
+    \begin{minipage}{.5\linewidth}
+      \centering
+      \caption{I: $accT = 90 \%$}
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        224     & 0.184304 \\
+        \hline
+        58      & 0.185129 \\
+        \hline
+        93      & 0.188115 \\
+        \hline
+        10      & 0.191469 \\
+        \hline
+        55      & 0.192745 \\
+        \hline
+        200     & 0.193437 \\
+        \hline
+        17      & 0.196673 \\
+        \hline
+        213     & 0.198158 \\
+        \hline
+        246     & 0.198955 \\
+        \hline
+        136     & 0.199817 \\
+      \end{tabular}
+    \end{minipage}
+    \begin{minipage}{\linewidth}
+      \centering
+      \caption{J: $accT = 75 \%$}
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        202     & 0.188627 \\
+        \hline
+        4       & 0.189224 \\
+        \hline
+        18      & 0.191552 \\
+        \hline
+        48      & 0.195139 \\
+        \hline
+        34      & 0.198802 \\
+        \hline
+        147     & 0.199784 \\
+        \hline
+        115     & 0.200821 \\
+        \hline
+        191     & 0.202413 \\
+        \hline
+        32      & 0.203051 \\
+        \hline
+        103     & 0.204335 \\
+      \end{tabular}
+    \end{minipage} 
+  \end{table}
+
+  \clearpage
+
+  \subsection{Modificando la cantidad del lote para 150 ciudades}
+  Se decidió hacer los siguientes experimientos, aumentando el 
+  tamaño del lote a $\binom{|S|}{2}$ para ver cómo se comportaba 
+  la heurísitica ahora con el conjunto de 150 ciudades.
+  Los resultados fueron los siguientes:
+
+  \begin{table}[!htbp]
+    \caption{150 ciudades, 
+             $L=\binom{|S|}{2}$, 
+             Descenso sólo en la solución final}
+    \begin{minipage}{.5\linewidth}
+      \caption{K: $accT = 90 \%$}
+      \centering
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        138     & 0.160616 \\
+        \hline
+        152     & 0.168321 \\
+        \hline
+        72      & 0.168701 \\
+        \hline
+        159     & 0.169948 \\
+        \hline
+        173     & 0.170576 \\
+        \hline
+        129     & 0.170689 \\
+        \hline
+        216     & 0.171369 \\
+        \hline
+        157     & 0.172577 \\
+        \hline
+        76      & 0.172662 \\
+        \hline
+        206     & 0.175033 \\
+      \end{tabular}
+    \end{minipage}%
+    \begin{minipage}{.5\linewidth}
+      \centering
+      \caption{L: $accT = 75 \%$}
+      \begin{tabular}{l|l}
+        Semilla & Mejor costo \\
+        \hline
+        205     & 0.162978 \\
+        \hline
+        95      & 0.169454 \\
+        \hline
+        91      & 0.169653 \\
+        \hline
+        86      & 0.172128 \\
+        \hline
+        128     & 0.176680 \\
+        \hline
+        45      & 0.176720 \\
+        \hline
+        35      & 0.177510 \\
+        \hline
+        171     & 0.178354 \\
+        \hline
+        177     & 0.179072 \\
+        \hline
+        48      & 0.179134 \\
+      \end{tabular}
+    \end{minipage}
+  \end{table}
+
+  Y ahora presentamos las gráficas obtenidas 
+  de las mejores soluciones de las categorías 
+  anteriores. Presentando primero para los 
+  conjuntos de 40 ciudades:
+
+  \begin{figure}[!h]
+    \includegraphics[scale=0.35]{A40}
+    \caption{(A-40) Mejor solución: 0.224633} 
+  \end{figure}
+  \begin{figure}[!h]
+    \includegraphics[scale=0.35]{B40}
+    \caption{(B-40) Mejor solución: 0.217518} 
+  \end{figure}
+  \begin{figure}[!h]
+    \includegraphics[scale=0.35]{E40}
+    \caption{(E-40) Mejor solución: 0.217518} 
+  \end{figure}
+  \begin{figure}[!h]
+    \includegraphics[scale=0.35]{H40}
+    \caption{(H-40) Mejor solución: 0.222834} 
+  \end{figure}
+  \begin{figure}[!h]
+    \includegraphics[scale=0.35]{I40}
+    \caption{(I-40) Mejor solución: 0.217518} 
+  \end{figure}
+
+  \clearpage
+
+  Y ahora presentando para el conjunto de 150 
+  ciudades:
+
+  \begin{figure}[!h]
+    \includegraphics[scale=0.35]{B150}
+    \caption{(B-150) Mejor solución: 101149.167010} 
+  \end{figure}
+  \begin{figure}[!h]
+    \includegraphics[scale=0.35]{C150}
+    \caption{(C-150) Mejor solución: 0.209159} 
+  \end{figure}
+  \begin{figure}[!h]
+    \includegraphics[scale=0.35]{D150}
+    \caption{(D-150) Mejor solución: 0.175001} 
+  \end{figure}
+  \begin{figure}[!h]
+    \includegraphics[scale=0.35]{F150}
+    \caption{(F-150) Mejor solución: 101149.148309} 
+  \end{figure}
+  \begin{figure}[!h]
+    \includegraphics[scale=0.35]{I150}
+    \caption{(I-150) Mejor solución: 0.184304} 
+  \end{figure}
+  \begin{figure}[!h]
+    \includegraphics[scale=0.35]{K150}
+    \caption{(K-150) Mejor solución: 0.160616} 
+  \end{figure}
+  \begin{figure}[!h]
+    \includegraphics[scale=0.35]{L150}
+    \caption{(L-150) Mejor solución: 0.162978} 
+  \end{figure}
+
+  \clearpage 
 
   \section{Discusión} \label{discussion}
-  \ldots
+  De todos los experimentos que se hicieron, 
+  algo importante que se puede es que la temperatura
+  y el tamaño del lote ($L$) sí terminan afectando 
+  bastante el rendimiento de la heurística. 
+
+  Los primeros experimentos se realizaron fueron con un 
+  lote de tamaño 3000, y como esta cantidad es mucho mayor
+  que el cuadrado de 40, entonces parece ser que la 
+  huerística casi siempre (sin importar la temperatura)
+  era capaz de regresar soluciones factibles. Por otro 
+  lado, cuando tenemos 150 ciudades, es muy común 
+  que nuestra heurística regrese muy malas soluciones, 
+  esto lo podemos ver en la categoría A, B, F y G; la 
+  razón por la que creemos que ocurre esto es porque 
+  (además de que la temperatura no es lo suficientemente
+  grande) el tamaño del lote es muy pequeño a comparación
+  del cuadrado de 150.
+
+  Ahora, la temperatura nos indice qué tanto va a estar
+  ``buscando'' una solución. En el caso de las 40 ciudades
+  para que temperaturas que estén entre 3000 y 12000 
+  son bastante buenas para encontrar soluciones; sin 
+  embargo, hay una mayor probabilidad de alcanzar una 
+  solución muy cercana al \tit{óptimo} utilizando la 
+  temperatura inicial dado un porcentaje de aceptación.
+  Para 150 ciudades, es claro que temperaturas de 
+  3000 o 6000 no son suficientes para poder encontrar
+  soluciones factibles, no es hasta 12000 que empezamos 
+  a tener como resultados soluciones factibles pero no 
+  asegura que todas sean factibles (como se 
+  puede ver en C); sin embargo, al igual que en el caso de 
+  40 ciudades, con las temperaturas dadas por un porcentaje 
+  de aceptación se obtienen resultados relativamente 
+  bastante diferentes a comparación de los obtenidos 
+  fijando una temperatura.
+  
+  En vista de lo anterior, se decidió hacer una prueba más 
+  con el conjunto de 150 ciudades tomando las temperaturas 
+  obtenidas con un porcentaje de aceptación y con un lote 
+  de mayor tamaño, exactamente $\binom{150}{2}$. Los 
+  resultados fueron los que se esperaban, soluciones
+  cuyo costo esta \tit{relativamente} más cerca del 
+  óptimo comparándolo con cualquiera de las antiguas 
+  categorías; confirmando una vez más que el tamaño 
+  del lote sí afecta directamente al rendimiento de la 
+  huerística.
+
+  Y gracias a las gráficas podemos qué tan rápido se 
+  acerca la heurística a un mínimo local. Casos como en 
+  F-150 o L-150 es fácil ver que la heurística se 
+  atasca rápidamente en un mínimo local, en el caso de 
+  F este mínimo resulta ser muy malo mientras que en L
+  resulta ser muy bueno. En casos como A-40, B-40 y
+  H-40, es muy común ver que gracias a la temperatura 
+  la heurística es capaz de salir de estos mínimos locales
+  para poder encontrar un mejor mínimo local; cosa que 
+  por ejemplo con el conjunto de 150 ciudades casi no ocurre,
+  siempre nos terminamos moviendo poco a poco sobre un 
+  mismo mínimo local.
 
   \section{Conclusión} \label{conclusion}
-  \ldots
-
-  \begin{thebibliography}{9}
-
-    \bibitem[X]{X} \ldots
-
-  \end{thebibliography}
+  La heurística de aceptación por umbrales resulta ser 
+  una muy buena alternativa para poder resolver 
+  el problema del agente viajero, la única desventaja 
+  de esta aproximación es que no es tan sencillo como 
+  solo programar los algoritmos necesarios y listo; 
+  se necesita experimentar con el tamaño del lote y con 
+  la temperatura para ser capaces de conseguir, no 
+  solo buenos resultados, sino resultados muy cercanos 
+  al óptimo. Sin embargo, parece ser que este tipo 
+  de valores que hay que buscar que nuestra heurística 
+  funcione \tit{bastante} bien sólo se consiguen 
+  a prueba y error.
 
 \end{document}
